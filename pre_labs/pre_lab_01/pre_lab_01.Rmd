@@ -119,7 +119,8 @@ In the space below, write the name of the business from the first row of the "na
 **Task** Run the following codeblock:
 
 ```{r}
-maryland_winred_contributions %>%
+maryland_winred_contributions %>% 
+  
   group_by(date) %>%
   summarise(
     count_contribs = n()
@@ -186,7 +187,7 @@ maryland_winred_contributions %>%
   arrange(desc(count_contribs))
 ```
 Compared to the previous codeblock, what has changed and how did that affect the result? Glancing at the names, are any of the top results from Maryland?
-**Answer** You have a lot more data aviable now, what this shows is a significant amount of money going towards GOP pacs or candidates.
+**Answer** You have a lot more data avaiable now, what this shows is a significant amount of money going towards GOP pacs or candidates.
 
 ### Task 11
 **Task** Run the following codeblock to group the maryland_winred_contributions dataframe by the city for each contribution. Then do the following summarizations for each group:count the number of contributions, add up the value of all contributions, calculate the mean and median contributions amounts and calculate the smallest and largest contributions Then sort so the city with the largest total contribution amount is listed first.
@@ -205,5 +206,5 @@ maryland_winred_contributions %>%
   arrange(desc(total_amount))
 ```
 Compared to the previous codeblock, what has changed and how did that affect the result? How is the data sorted?
-**Answer** Interestingly, or perhaps not so intersting as it is obvious, the cities that gave the most contributions are the ones in Maryland with the highest per capita income, such as the rich cities in Montgomery County. 
+**Answer** Interestingly, or perhaps not so interesting as it is obvious, the cities that gave the most contributions are the ones in Maryland with the highest per capita income, such as the rich cities in Montgomery County. 
 
