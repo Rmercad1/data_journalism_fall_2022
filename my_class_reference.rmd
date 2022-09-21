@@ -53,3 +53,38 @@ ppp_maryland_loans %>%
   arrange(desc(max_loan_amount))
 ```
 
+When you have a new variable:
+
+```{r}
+my_variable <- my_new_variable
+```
+
+Example:
+
+```{r}
+nake<-Ryan
+```
+
+You can always save a new codeblcok to a variable. 
+
+###Mutate
+Mutate something to add columnes, rows,BUT YOU MUST MUST SAVE IT TO A VARIABLE IN ORDER TO MAKE IT PERMANENT. 
+
+###Interesting Packages:
+
+Lubridate: It allows easier categorization of dates, also allows functions for times. It expands mathematical operations, and 
+
+### When you want to group things by certain groups of numbers:
+
+```{r}
+maryland_winred_categories <- maryland_winred %>%
+  mutate(
+    amount_category = case_when(
+        amount < 100 ~ "Less than $100",
+        amount >= 100 & amount <= 500 ~ "Between $100 and $500",
+        amount > 500 & amount <= 2900 ~ "Between $501 and $2900",
+        amount > 2900 ~ "More than $2,900"
+      )
+  )
+head(maryland_winred_categories)
+```
