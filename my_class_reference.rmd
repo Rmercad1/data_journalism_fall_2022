@@ -88,3 +88,39 @@ maryland_winred_categories <- maryland_winred %>%
   )
 head(maryland_winred_categories)
 ```
+
+
+
+
+```{r}
+wv_winred_categories <- wv_winred_contribs %>%
+  mutate(
+    amount_category = case_when(
+        amount < 10 ~ "Less than $10",
+        amount >= 10 & amount <= 25 ~ "Between $10 and $25",
+        amount > 25 & amount <= 50 ~ "Between $26 and $50",
+        amount > 50 & amount <= 100 ~ "Between $51 and $100",
+        amount > 101 & amount <= 501 ~ "Between $101 and $500",
+        amount >= 501 ~ "More than $501"
+      )
+  )
+head(wv_winred_categories)
+wv_winred_categories %>%
+  group_by(amount_category) %>%
+  summarize(total_amount = sum(amount)) %>%
+  arrange(desc(total_amount))
+wv_winred_categories %>%
+  group_by(amount_category) %>%
+  summarise(
+    count_contribs = n()
+  ) %>%
+  arrange((count_contribs))
+```
+
+
+```{r}
+ wv_winred_categories_names <- wv_winred_categories  %>% filter(amount_category == "Less than $10")
+
+head(wv_winred_categories_names)
+```
+

@@ -323,7 +323,7 @@ So to follow along here, we're going to use mutate to create a month field, grou
 
 
 ```{r}
-maryland_expenses %>%
+maryland_expenses %>% 
   mutate(month = floor_date(expenditure_date, "month")) %>%
   group_by(month) %>%
   summarise(total_amount = sum(amount)) %>%
