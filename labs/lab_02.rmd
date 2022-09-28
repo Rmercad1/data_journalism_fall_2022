@@ -33,7 +33,7 @@ wv_winred_contribs <- read_rds("data/lab_02.rds")
 ## Answer questions
 
 **Q1** Create a new column that divides the contribution amounts into the following options - less than $10, $10-$25, $26-$50, $51_$100, $101-$500, $501 and up - and calculates how many contributions are in each group. How would you describe the distribution of contributions in a sentence?
-A1. Interestingly, or not so interestingly, contributiosn between $10 and $25 are the highest ones. this makes sense since people generally don't want to contribute a large amoutn while 10-25 seems like a reasonable amount to some people. Less than $10 is the next highest, which also makes sense since people don't have a lot of disposable income to send to poltiical campaigns. 
+A1. Interestingly, or not so interestingly, contributions between $10 and $25 are the highest ones. this makes sense since people generally don't want to contribute a large amount while 10-25 seems like a reasonable amount to some people. Less than $10 is the next highest, which also makes sense since people don't have a lot of disposable income to send to political campaigns. 
 
 
 ```{r}
@@ -62,11 +62,15 @@ wv_winred_categories %>%
 ```
 
 Q2. Which West Virginia donors made the most contributions of less than $10? You'll need to use a combination of columns to get unique donors.  
-A2. A woman by the name of Shelly Rohrig, who spent a considerable amount of money on caidadtes across the board. She sent in many many donations of less than $10. 
+A2.
 
 ```{r}
- wv_winred_categories_names <- wv_winred_categories  %>% filter(amount_category == "Less than $10")
-head(wv_winred_categories_names)
+
+less_than_10 <- wv_winred_contribs %>% 
+  filter(amount < 10) %>% 
+  group_by(first_name, last_name, address_one) %>% 
+  summarise(number_of_contributions = n()) %>% 
+  arrange(desc(number_of_contributions))
 ```
 
 Q3. What questions do the results of Q2 raise in your mind? How could you use the data to explore them? No code here, just your questions.
@@ -76,11 +80,11 @@ Q4. Which month saw the most contributions?
 A4. Unsurprisngly, June had the most contributions, and it makes sense since there most likely was a fund-raising blitz before any primaries in other states. Interestingly, the primary elections in WV was on May 10, 2022, so the contributions from June of that month was to races in OTHER states. Very interesting. 
 
 ```{r}
-wv_winred_categories_names %>% 
+wv_winred_contribs %>% 
   mutate(month = floor_date(date, "month")) %>%
   group_by(month) %>%
-  summarise(total_amount = sum(amount)) %>%
-  arrange(desc(total_amount))
+  summarise(total= n()) %>%
+  arrange(desc(total))
 ```
 
 
