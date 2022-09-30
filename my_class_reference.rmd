@@ -33,6 +33,27 @@ install.packages("tidyverse")
 library(tidyverse)
 ```
 
+### group by and count:
+
+data %>% group_by(COLUMN NAME) %>% summarize(VARIABLE NAME = AGGREGATE FUNCTION(COLUMN NAME))
+
+maryland_winred_contributions %>%
+  group_by(memo_text) %>%
+  summarise(
+    count_contribs = n()
+  )
+  
+### case when
+
+maryland_winred_categories <- maryland_winred %>%
+  mutate(
+    amount_category = case_when(
+        amount < 100 ~ "Less than $100",
+        amount >= 100 & amount <= 500 ~ "Between $100 and $500",
+        amount > 500 & amount <= 2900 ~ "Between $501 and $2900",
+        amount > 2900 ~ "More than $2,900"
+      )
+  )
 
 ### Summarizing
 
