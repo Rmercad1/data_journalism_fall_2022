@@ -1,7 +1,7 @@
 ---
 title: "Reverse Engineering Project"
-author: "Student names here"
-date: "Date here"
+author: "Ryan Mercado"
+date: "10/6/2022"
 output:
   html_document:
     theme: cerulean
@@ -25,6 +25,10 @@ In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
 Loading required libraries for this analysis.
 
 ```{r echo=FALSE, message=FALSE}
+options(scipen=999)
+library(tidyverse)
+library(lubridate)
+library(janitor)
 
 ```
 
@@ -37,9 +41,37 @@ In this section, describe the source of the data, write a basic data dictionary 
 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
+moore_contribs <- read.csv("data/ContributionsListMoore.csv")
+
 # Clean required data and prepare for analysis if needed. 
 
+moore_contribs <- moore_contribs %>% 
+  clean_names()
+```
 
+```{r}
+moore_contribs
+glimpse
+```
+
+```{r}
+moore_contribs_cleaned <- moore_contribs %>% mutate(contribution_date=mdy(contribution_date))
+
+head(moore_contribs_cleaned)
+
+```
+
+```{r}
+moore_contribs_categories_lessthan <- moore_contribs_cleaned %>%
+  filter(contribution_amount <= 100)
+head(moore_contribs_categories_lessthan)
+```
+
+```{r}
+moore_contribs_categories_lessthan %>% 
+  group_by(contribution_amount) %>% 
+  summarize(total_amount = sum(contribution_amount)) %>% 
+  arrange(desc(total_amount))
 ```
 
 ## Sentences to Engineer

@@ -156,3 +156,29 @@ less_than_10 <- wv_winred_contribs %>%
   group_by(first_name, last_name, address_one) %>% 
   summarise(number_of_contributions = n()) %>% 
   arrange(desc(number_of_contributions))
+```
+
+nrow() is a number, not a dataframe, it tells you how many things you counted. 
+
+```{r}
+# with nrow included to show row total
+maryland_population %>% left_join(county_voters_2020, by="COUNTY") %>% nrow()
+```
+
+First data frame -> join --> second data frame     the by says "join these two data sets here WHEN THEY ARE BOTH IN THE TWO DATA SETS.
+R will look for this scenario by defauly if you don't specify.
+
+When you are using joing, USE THE "by" to specify.Don't let R guess.
+
+```{r}
+# join on zip - but there's a problem
+maryland_population_with_voters_and_demographics <- maryland_population_with_voters %>% left_join(maryland_demographics, by=c("COUNTY"="NAME"))
+```
+
+When you have two data sets that look the same, but have different names ^^^^^^
+TO fix this: ("First column" = second column"), when you want to do multiples of these, just do this:
+
+by=c("COUNTY"="NAME", "student_hometown" = "hometown"))
+Remember that the first column is a joing comes from the FIRST data frame that exists in your project.
+
+
