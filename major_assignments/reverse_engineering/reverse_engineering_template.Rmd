@@ -18,6 +18,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction 
 
+What we are looking for:
+we are doing research on how to reverse-engineer from Stephen's paragraph:
+
+“We set the pace in fundraising — including raising more money in Maryland and having 73% of donations $100 or less — because this campaign has inspired thousands of people from all walks of life in Maryland and across the country who see the opportunity to make Wes Moore governor of Maryland and change the trajectories of families who have been left behind,” the campaign said in a statement."
+
+So basically we are looking at contributions of $100 or less. 
+This is the process that we used to isolate our data to that point:
+
+
+
 In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
 
 ## Load libraries
@@ -32,6 +42,8 @@ library(janitor)
 
 ```
 
+We found Moore contribution data online, created it into a CSV file, and then put it in github to load it: 
+
 ## Load and Cleaning Data
 
 In this section, describe the source of the data, write a basic data dictionary for data you are working with, and discuss any caveats or issues you discovered working with this data. 
@@ -45,26 +57,55 @@ moore_contribs <- read.csv("data/ContributionsListMoore.csv")
 
 # Clean required data and prepare for analysis if needed. 
 
-moore_contribs <- moore_contribs %>% 
+moore_contribs_cleanednames <- moore_contribs %>% 
   clean_names()
 ```
 
 ```{r}
-moore_contribs
-glimpse
-```
-
-```{r}
-moore_contribs_cleaned <- moore_contribs %>% mutate(contribution_date=mdy(contribution_date))
-
-head(moore_contribs_cleaned)
+head(moore_contribs_cleanednames)
 
 ```
 
+We Cleaned date: 
 ```{r}
-moore_contribs_categories_lessthan <- moore_contribs_cleaned %>%
+moore_contribs_edit <-moore_contribs_cleanednames %>% mutate(contribution_date=mdy(contribution_date))
+
+head(moore_contribs_edit)
+
+```
+
+We set the contribution_amount as a number amount: 
+```{r}
+moore_contribs_edit_numeric <-moore_contribs_edit %>% 
+mutate(across(contribution_amount, as.numeric))
+head(moore_contribs_edit)
+
+```
+
+This is where we got stuck, we are trying to filter/ mutate to get the contributions to between $0-$100 but kept running into a wall. We tried several ways to do this but every time we ran a code, the contribution_amount kept reverting back to a character amount. 
+
+```{r}
+moore_contribs_100 <- moore_contribs_edit_numeric %>%
+  filter(contribution_amount == "5+' ~ '49")
+head(moore_contribs_100)
+```
+```
+
+
+
+```{r}
+moore_contribs_edit_numeric %>% 
+mutate(contribution_amount = case_when(
+        contribution_amount >= 0 & contribution_amount <= 100 ~ "Less than 100"))
+
+amount >= 10 & amount <= 25 ~ "Between $10 and $25",
+```
+
+
+```{r}
+moore_contribs_edit_numeric %>%
   filter(contribution_amount <= 100)
-head(moore_contribs_categories_lessthan)
+head(moore_contribs_edit_numeric)
 ```
 
 ```{r}
@@ -73,6 +114,16 @@ moore_contribs_categories_lessthan %>%
   summarize(total_amount = sum(contribution_amount)) %>% 
   arrange(desc(total_amount))
 ```
+
+We tried many different codes aside from these three and just couldn't get a clean tibble to work with. We apologise. We got to the very end though of what we are looking for. 
+
+
+
+*******end**********************
+
+
+
+
 
 ## Sentences to Engineer
 In this notebook, we are reverse engineering five sentences from the story.
