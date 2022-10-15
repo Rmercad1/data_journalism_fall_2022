@@ -182,3 +182,6 @@ by=c("COUNTY"="NAME", "student_hometown" = "hometown"))
 Remember that the first column is a joing comes from the FIRST data frame that exists in your project.
 
 
+Write data frame:
+
+write_csv(dataframe, "data/my_datafram.csv")

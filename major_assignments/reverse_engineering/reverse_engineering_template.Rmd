@@ -82,6 +82,10 @@ head(moore_contribs_edit)
 
 ```
 
+
+
+
+
 This is where we got stuck, we are trying to filter/ mutate to get the contributions to between $0-$100 but kept running into a wall. We tried several ways to do this but every time we ran a code, the contribution_amount kept reverting back to a character amount. 
 
 ```{r}
@@ -89,7 +93,91 @@ moore_contribs_100 <- moore_contribs_edit_numeric %>%
   filter(contribution_amount == "5+' ~ '49")
 head(moore_contribs_100)
 ```
+
+
+
+
+```{r}
+md_moore_contribs_states <- moore_contribs_edit_numeric %>%
+  filter(str_detect(contributor_address, " MD "))
 ```
+
+```{r}
+moore_contributions_filtered <- moore_contribs_edit_numeric %>%
+    mutate(contributor_state = case_when(
+    str_detect(contributor_address, " MD ") ~ "Maryland",
+    str_detect(contributor_address, " NY ") ~ "New York",
+    str_detect(contributor_address, " AL ") ~ "Alabama",
+    str_detect(contributor_address, " AK ") ~ "Alaska",
+    str_detect(contributor_address, " AZ ") ~ "Arizona",
+    str_detect(contributor_address, " AR ") ~ "Arkansas", 
+    str_detect(contributor_address, " CA" ) ~ "California", 
+    str_detect(contributor_address, " CO" ) ~ "Colorado",
+    str_detect(contributor_address, " CT ") ~ "Connecticut",
+    str_detect(contributor_address, " DE ") ~ "Delaware",
+    str_detect(contributor_address, " FL ") ~ "Florida",
+    str_detect(contributor_address, " GA ") ~ "Georgia",
+    str_detect(contributor_address, " HI ") ~ "Hawaii",
+    str_detect(contributor_address, " ID ") ~ "Idaho",
+    str_detect(contributor_address, " IL ") ~ "Illinois",
+    str_detect(contributor_address, " IN ") ~ "Indiana",
+    str_detect(contributor_address, " IA ") ~ "Iowa",
+    str_detect(contributor_address, " KS ") ~ "Kansas",
+    str_detect(contributor_address, " KY ") ~ "Kentucky",
+    str_detect(contributor_address, " LA ") ~ "Louisiana",
+    str_detect(contributor_address, " ME ") ~ "Maine",
+    str_detect(contributor_address, " MA ") ~ "Massachusetts",
+    str_detect(contributor_address, " MI ") ~ "Michigan",
+    str_detect(contributor_address, " MN ") ~ "Minnesota",
+    str_detect(contributor_address, " MS ") ~ "Mississippi",
+    str_detect(contributor_address, " MO ") ~ "Missouri",
+    str_detect(contributor_address, " MT ") ~ "Montana",
+    str_detect(contributor_address, " NE" ) ~ "Nebraska",
+    str_detect(contributor_address, " NV" ) ~ "Nevada ", 
+    str_detect(contributor_address, " NJ ") ~ "New Jersey",
+    str_detect(contributor_address, " NM ") ~ "New Mexico",
+    str_detect(contributor_address, " NY ") ~ "New York",
+    str_detect(contributor_address, " NC ") ~ "North Carolina",
+    str_detect(contributor_address, " ND ") ~ "North Dakota",
+    str_detect(contributor_address, " OH ") ~ "Ohio",
+    str_detect(contributor_address, " OK ") ~ "Oklahoma",
+    str_detect(contributor_address, " OR ") ~ "Oregon",
+    str_detect(contributor_address, " PA ") ~ "Pennsylvania",
+    str_detect(contributor_address, " RI ") ~ "Rhode Island",
+    str_detect(contributor_address, " SC ") ~ "South Carolina",
+    str_detect(contributor_address, " SD ") ~ "South Dakota",
+    str_detect(contributor_address, " TN ") ~ "Tennessee",
+    str_detect(contributor_address, " TX ") ~ "Texas",
+    str_detect(contributor_address, " UT ") ~ "Utah",
+    str_detect(contributor_address, " VT ") ~ "Vermont",
+    str_detect(contributor_address, " VA ") ~ "Virginia",
+    str_detect(contributor_address, " WA ") ~ "Washington",
+    str_detect(contributor_address, " WV ") ~ "West Virginia",
+    str_detect(contributor_address, " WI ") ~ "Wisconsin",
+    str_detect(contributor_address, " WY ") ~ "Wyoming",
+    str_detect(contributor_address, " DC ") ~ "Washington, D.C.",
+    
+    TRUE ~ contributor_address))
+
+```
+
+
+
+```{r}
+moore_contribs_states_edit <- md_moore_contribs_states %>%
+  filter(str_detect(contributor_address, " MD ")) %>%
+  mutate(contributor_state = "Maryland")
+
+```
+
+```{r}
+moore_contribs_edit_numeric %>% 
+  mutate(contributor_address=case_when(
+    contributor_address == " NJ ~ NJ "
+    contributor_address == " MD 
+  ))
+```
+
 
 
 
@@ -108,18 +196,23 @@ moore_contribs_edit_numeric %>%
 head(moore_contribs_edit_numeric)
 ```
 
-```{r}
-moore_contribs_categories_lessthan %>% 
-  group_by(contribution_amount) %>% 
-  summarize(total_amount = sum(contribution_amount)) %>% 
-  arrange(desc(total_amount))
-```
 
 We tried many different codes aside from these three and just couldn't get a clean tibble to work with. We apologise. We got to the very end though of what we are looking for. 
 
 
 
 *******end**********************
+
+
+
+Paragraph 2: Finding contributions from outside of Maryland.
+
+```{r}
+md_moore_contribs_states <- moore_contribs_edit_numeric %>%
+  filter(str_detect(contributor_address, "MD"))
+```
+
+
 
 
 
