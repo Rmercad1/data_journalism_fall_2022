@@ -16,7 +16,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction 
+## Sentence 1: 
 
 What we are looking for:
 we are doing research on how to reverse-engineer from Stephen's paragraph:
@@ -26,9 +26,8 @@ we are doing research on how to reverse-engineer from Stephen's paragraph:
 So basically we are looking at contributions of $100 or less. 
 This is the process that we used to isolate our data to that point:
 
+Analysis: The data shows that Wes Moore got 8,647 unique contributions of less than 100$
 
-
-In this notebook, we are reverse engineering the story, [STORY NAME](STORY URL)
 
 ## Load libraries
 
@@ -54,11 +53,22 @@ In this section, describe the source of the data, write a basic data dictionary 
 # Path to data should be loaded from folder "data" i.e. read_csv("data/name_of_data.csv")
 
 moore_contribs <- read.csv("data/ContributionsListMoore.csv")
+perez_contribs <- read.csv("data/Perez_Contributions.csv")
+
+```
+
+
 
 # Clean required data and prepare for analysis if needed. 
-
+```{r}
 moore_contribs_cleanednames <- moore_contribs %>% 
   clean_names()
+```
+
+```{r}
+perez_contribs_cleanednames <- perez_contribs %>% 
+  clean_names()
+
 ```
 
 ```{r}
@@ -74,25 +84,56 @@ head(moore_contribs_edit)
 
 ```
 
+```{r}
+perez_contribs_edit <-perez_contribs_cleanednames %>% mutate(contribution_date=mdy(contribution_date))
+
+head(perez_contribs_edit)
+
+
+```
+
+
+
 We set the contribution_amount as a number amount: 
+```{r}
+perez_contribs_edit_numeric <-perez_contribs_edit %>% 
+mutate(across(contribution_amount, as.numeric))
+
+
+```
+
 ```{r}
 moore_contribs_edit_numeric <-moore_contribs_edit %>% 
 mutate(across(contribution_amount, as.numeric))
-head(moore_contribs_edit)
 
 ```
 
 
-
-
-
-This is where we got stuck, we are trying to filter/ mutate to get the contributions to between $0-$100 but kept running into a wall. We tried several ways to do this but every time we ran a code, the contribution_amount kept reverting back to a character amount. 
+Then filtered to see contributions under 100:
 
 ```{r}
-moore_contribs_100 <- moore_contribs_edit_numeric %>%
-  filter(contribution_amount == "5+' ~ '49")
-head(moore_contribs_100)
+less_than_hundred_moore_contribs <- moore_contribs_edit_numeric %>%
+  filter(contribution_amount < 100)
+
 ```
+
+
+```{r}
+less_than_hundred_moore_contribs <- less_than_hundred_moore_contribs %>%
+  group_by(contributor_name) %>%
+  summarise(total = n(), amount = sum(contribution_amount)) %>%
+  arrange(desc(total))
+less_than_hundred_moore_contribs
+```
+
+Analysis: The data shows that Wes Moore got $8,647 unique contributions of less than 100$. It looks like a woman named Delores Parron-Ragland donanted over 82 times to his campaign, a really large amount totaling $1019.30. She most likely is an outlier though as most top donors did not donate anywhere near 80 times. 
+
+### Sentences 2 and 3:
+
+“Moore, a U.S. Army veteran and bestselling author, built a campaign war chest that included over $2.3 million in out-of-state contributions. Tom Perez, a former leader of the Democratic National Committee, raised nearly $1.7 million in donations from outside Maryland.” 
+
+“Moore, a U.S. Army veteran and bestselling author, built a campaign war chest that included over $2.3 million in out-of-state contributions. 
+
 
 
 
@@ -104,6 +145,69 @@ md_moore_contribs_states <- moore_contribs_edit_numeric %>%
 
 ```{r}
 moore_contributions_filtered <- moore_contribs_edit_numeric %>%
+    mutate(contributor_state = case_when(
+    str_detect(contributor_address, " AL ") ~ "Alabama",
+    str_detect(contributor_address, " AK ") ~  "Alaska",
+    str_detect(contributor_address, " AZ ") ~  "Arizona",
+    str_detect(contributor_address, " AR ") ~  "Arkansas",
+    str_detect(contributor_address, "5 Regent Dr Queanbeyan AS") ~  "American Samoa",
+    str_detect(contributor_address, " CA ") ~  "California",
+    str_detect(contributor_address, " CO ") ~ "Colorado",
+    str_detect(contributor_address, " CT ") ~  "Connecticut",
+    str_detect(contributor_address, " DE ") ~  "Delaware",
+    str_detect(contributor_address, " FL ") ~  "Florida",
+    str_detect(contributor_address, " GA ") ~  "Georgia",
+    str_detect(contributor_address, " HI ") ~ "Hawaii",
+    str_detect(contributor_address, " ID ") ~  "Idaho",
+    str_detect(contributor_address, " IL ") ~  "Illinois",
+    str_detect(contributor_address, " IN ") ~  "Indiana",
+    str_detect(contributor_address, " IA ") ~  "Iowa",
+    str_detect(contributor_address, " KS ") ~ "Kansas",
+    str_detect(contributor_address, " KY ") ~  "Kentucky",
+    str_detect(contributor_address, " LA ") ~  "Louisiana",
+    str_detect(contributor_address, " ME ") ~  "Maine",
+    str_detect(contributor_address, " MD ") ~ "Maryland",
+    str_detect(contributor_address, " MA ") ~  "Massachusetts",
+    str_detect(contributor_address, " MI ") ~  "Michigan",
+    str_detect(contributor_address, " MN ") ~ "Minnesota",
+    str_detect(contributor_address, " MS ") ~  "Mississippi",
+    str_detect(contributor_address, " MO ") ~  "Missouri",
+    str_detect(contributor_address, " MN ") ~  "Montana",
+    str_detect(contributor_address, " MT ") ~  "Montana",
+    str_detect(contributor_address, " NE ") ~  "Nebraska",
+    str_detect(contributor_address, " NV ") ~ "Nevada",
+    str_detect(contributor_address, " NH ") ~ "New Hampshire",
+    str_detect(contributor_address, " NJ ") ~ "New Jersey",
+    str_detect(contributor_address, " NM ") ~ "New Mexico",
+    str_detect(contributor_address, " NY ") ~  "New York",
+    str_detect(contributor_address, " NC ") ~ "North Carolina",
+    str_detect(contributor_address, " ND ") ~ "North Dakota",
+    str_detect(contributor_address, " OH ") ~ "Ohio",
+    str_detect(contributor_address, " OK ") ~ "Oklahoma", 
+    str_detect(contributor_address, " OR ") ~ "Oregon", 
+    str_detect(contributor_address, " PA ") ~ "Pennsylvania",
+    str_detect(contributor_address, " RI ") ~ "Rhode Island",
+    str_detect(contributor_address, " SC ") ~ "South Carolina",
+    str_detect(contributor_address, " SD ") ~ "South Dakota",
+    str_detect(contributor_address, " TN ") ~ "Tennessee",
+    str_detect(contributor_address, " TX ") ~ "Texas",
+    str_detect(contributor_address, " UT ") ~ "Utah",
+    str_detect(contributor_address, " VT ") ~ "Vermont",
+    str_detect(contributor_address, " VA ") ~ "Virginia",
+    str_detect(contributor_address, " WA ") ~ "Washington",
+    str_detect(contributor_address, " WV ") ~ "West Virginia",
+    str_detect(contributor_address, " WI ") ~ "Wisconsin",
+    str_detect(contributor_address, " WY ") ~ "Wyoming",
+    str_detect(contributor_address, " DC ") ~ "Washington DC",
+    TRUE ~ contributor_address
+  ))
+
+
+```
+
+
+```{r}
+perez_contributions_filtered <- perez_contribs_edit_numeric %>%
     mutate(contributor_state = case_when(
     str_detect(contributor_address, " MD ") ~ "Maryland",
     str_detect(contributor_address, " NY ") ~ "New York",
@@ -161,56 +265,55 @@ moore_contributions_filtered <- moore_contribs_edit_numeric %>%
 
 ```
 
-
+```{r}
+moore_contributions_filtered %>% 
+group_by(contributor_state) %>%
+summarise(total_state_amount = sum(contribution_amount),
+            mean_amount= mean(contribution_amount),
+          number_of_contribs=n())%>%
+arrange(desc(total_state_amount))
+```
+```{r}
+perez_contributions_filtered %>% 
+group_by(contributor_state) %>%
+summarise(total_state_amount = sum(contribution_amount),
+            mean_amount= mean(contribution_amount),
+          number_of_contribs=n())%>%
+arrange(desc(total_state_amount))
+```
+```{r}
+moore_out_of_state_contributions <- moore_contributions_filtered %>% 
+  filter(!str_detect(contributor_state, "Maryland"))
+```
 
 ```{r}
-moore_contribs_states_edit <- md_moore_contribs_states %>%
-  filter(str_detect(contributor_address, " MD ")) %>%
-  mutate(contributor_state = "Maryland")
+moore_out_of_state_contributions %>%
+  summarise(total_state_amount = sum(contribution_amount),
+          mean_amount= mean(contribution_amount),
+          number_of_contribs=n())%>%
+arrange(desc(total_state_amount))
+
 
 ```
 
 ```{r}
-moore_contribs_edit_numeric %>% 
-  mutate(contributor_address=case_when(
-    contributor_address == " NJ ~ NJ "
-    contributor_address == " MD 
-  ))
+perez_out_of_state_contributions <- perez_contributions_filtered %>% 
+  filter(!str_detect(contributor_state, "Maryland"))
 ```
-
-
-
 
 ```{r}
-moore_contribs_edit_numeric %>% 
-mutate(contribution_amount = case_when(
-        contribution_amount >= 0 & contribution_amount <= 100 ~ "Less than 100"))
+perez_out_of_state_contributions %>%
+  summarise(total_state_amount = sum(contribution_amount),
+          mean_amount= mean(contribution_amount),
+          number_of_contribs=n())%>%
+arrange(desc(total_state_amount))
 
-amount >= 10 & amount <= 25 ~ "Between $10 and $25",
+
 ```
+Analysis: From what I can see from the data, Moore got some $4.1 million contributions just from out of state from 9,453 people. And from those people, the mean amount was $434, its a lot of money. Perez, on the other hand got about $2.4 million in out of state contributions, not that bad when comparing his known profile for his work under the Obama administration, it makes sense. What's interesting is that the mean amount was larger than Moore's at a whooping $682 among 3589 unique contributions. Its a lot to donate to someone out of state. Perhaps the Democratic primary was more high-stakes than I thought? 
 
+*******end***)
 
-```{r}
-moore_contribs_edit_numeric %>%
-  filter(contribution_amount <= 100)
-head(moore_contribs_edit_numeric)
-```
-
-
-We tried many different codes aside from these three and just couldn't get a clean tibble to work with. We apologise. We got to the very end though of what we are looking for. 
-
-
-
-*******end**********************
-
-
-
-Paragraph 2: Finding contributions from outside of Maryland.
-
-```{r}
-md_moore_contribs_states <- moore_contribs_edit_numeric %>%
-  filter(str_detect(contributor_address, "MD"))
-```
 
 
 
