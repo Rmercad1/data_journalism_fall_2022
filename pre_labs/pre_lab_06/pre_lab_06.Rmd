@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 2. Demonstration of PDF parsing with Tabula
 
 ### Task 1: Load libraries
-**Task** Run the following code in the gray-colored codeblock below -- not in the console -- to load the tidyverse library. To run the code, click the little green play button (left facing arrow) at the top right of the codeblock. In Rmarkdown data notebooks, we write code inside of codeblocks, and explanatory text in the white area outside of it.
+**Task** Run the following code in the gray-colored codeblock below -- not in the console -- to load the tidyverse library. To run the code, click the little green play button (left facing arrow) at the top right of the codeblock. In Rmarkdown data notebooks, we write code inside of codeblocks, and explanatory text in the white area outside of it. 
 
 ```{r}
 # turn off sci notation
