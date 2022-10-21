@@ -160,7 +160,7 @@ md_expenses_grouped %>%
 
 **A3.**  Wes Moore, Tom Perez, and BIll Blair/ March Elrich are surprisingly not there and their respective candidate profiles and races were pretty high-stakes. 
 
-For Wes Moore, the data tibble shows he DID NOT spend any ads for Meta, which is very very surprising. As for the the biggest recipients of media expenses by both Wes Moore's committees, the biggest one is SKDK, whihc is a consulting firm for Democratic politicians. Interestingly, they did a lot of media work for Moore when you look under the "expense category column. Everything from newspapers to TV. This company was also used by David Blair, who ran for County Executive in MoCo.Since I lived there and saw the race play out, I will say that David Blair ran a VERY impactful campaign and was very visible in his advertising. Goes to show the power and reach of SKDK. 
+For Wes Moore, the data tibble shows he DID NOT spend any ads for Meta, which is very very surprising. As for the the biggest recipients of media expenses by both Wes Moore's committees, the biggest one is SKDK, which is a consulting firm for Democratic politicians. Interestingly, they did a lot of media work for Moore when you look under the "expense category column. Everything from newspapers to TV. This company was also used by David Blair, who ran for County Executive in MoCo.Since I lived there and saw the race play out, I will say that David Blair ran a VERY impactful campaign and was very visible in his advertising. Goes to show the power and reach of SKDK. 
 ```{r}
 
 md_expenses_wesmoore<-md_expenses_new %>% 
