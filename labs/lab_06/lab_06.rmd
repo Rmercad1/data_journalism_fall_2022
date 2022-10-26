@@ -212,13 +212,8 @@ head(ua_voters_2022)
 
 ```{r}
 ua_difference <-ua_voters_2020 %>% left_join(ua_voters_2022, by="COUNTY")
-head(ua_difference)c
+head(ua_difference)
 ```
-```{r}
-
-```
-
-
 
 ```{r}
 ua_difference %>% 
@@ -232,11 +227,11 @@ In other words, did new registrants mirror the overall partisan composition of t
 A3. From what I can see, they somewhat do? Unless I am calculating this wrong. They overall do match the overall voter registration patterns in the state of Maryland. 
 
 ```{r}
-mirror_compare_1_2020 <- tabula_2020_new_registration %>%   
+mirror_compare_1_2020 <- tabula_2020_new_registration %>% 
   mutate(percent_dem = (DEM/TOTAL*100)) %>% 
   mutate(percent_rep = (REP/TOTAL*100)) %>% 
   mutate(percent_unaf = (UNAF/TOTAL*100))
-head(mirror_compare_2020)
+head(mirror_compare_1_2020)
 ```
 
 ```{r}
@@ -244,7 +239,7 @@ mirror_compare_2_2022 <- tabula_changes_2022 %>%
   mutate(PERCENT_DEM = (DEM/TOTAL*100)) %>% 
   mutate(PERCENT_REP = (REP/TOTAL*100)) %>% 
   mutate(PERCENT_UNAF = (UNAF/TOTAL*100))
-  head(tabula_changes_2022)
+  head(mirror_compare_2_2022)
 ```
 
 

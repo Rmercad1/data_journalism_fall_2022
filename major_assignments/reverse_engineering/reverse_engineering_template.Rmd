@@ -265,6 +265,8 @@ perez_contributions_filtered <- perez_contribs_edit_numeric %>%
 
 ```
 
+
+
 ```{r}
 moore_contributions_filtered %>% 
 group_by(contributor_state) %>%
@@ -312,76 +314,141 @@ arrange(desc(total_state_amount))
 ```
 Analysis: From what I can see from the data, Moore got some $4.1 million contributions just from out of state from 9,453 people. And from those people, the mean amount was $434, its a lot of money. Perez, on the other hand got about $2.4 million in out of state contributions, not that bad when comparing his known profile for his work under the Obama administration, it makes sense. What's interesting is that the mean amount was larger than Moore's at a whooping $682 among 3589 unique contributions. Its a lot to donate to someone out of state. Perhaps the Democratic primary was more high-stakes than I thought? 
 
-*******end***)
+### Sentences 4:
 
-
-
-
-
-
-
-
-## Sentences to Engineer
-In this notebook, we are reverse engineering five sentences from the story.
-
-### Sentence 1
-
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+"John B. King, former secretary of Education under President Barack Obama, raised $2.2 million in campaign funding last year."
 
 ```{r}
-# Put code to reverse engineer sentence here
-
-# Display results of code below this codeblock
+king_contribs <- read.csv("data/king_contribs.csv")
 
 ```
 
-### Sentence 2
+```{r}
+king_contribs
+```
+```{r}
+king_contribs_cleanednames <- king_contribs %>% clean_names
+```
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
-# Put code to reverse engineer sentence here
+king_contribs_cleanednames
+```
+```{r}
+king_contribs_edit <-king_contribs_cleanednames %>% mutate(contribution_date=mdy(contribution_date))
 
-# Display results of code below this codeblock
 
 ```
 
-### Sentence 3
-
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
-# Put code to reverse engineer sentence here
+king_contribs_edit
+```
 
-# Display results of code below this codeblock
+```{r}
+king_contribs_edited<-king_contribs_edit %>% 
+  select(-office ,-x)
+```
+
+```{r}
+king_contribs_2021<-king_contribs_edited %>%
+filter(year(contribution_date)==2021)
+king_contribs_2021  
+```
+
+
+
+
+
+```{r}
+king_contribs_2021 %>%
+  summarise(total_2021 = sum(contribution_amount))
+```
+### Sentences 4:
+
+"Moore and King each received $100,000 each from Illinois." 
+
+
+###Moore Data:
+```{r}
+moore_contributions_filtered %>%
+    filter(contributor_state == "Illinois") %>% 
+  group_by(contributor_state) %>% 
+  summarise(sum_Ill = sum(contribution_amount))
+```
+###King Data:
+
+```{r}
+king_contribs_edited_states <- king_contribs_edited %>%
+    mutate(contributor_state = case_when(
+    str_detect(contributor_address, " MD ") ~ "Maryland",
+    str_detect(contributor_address, " NY ") ~ "New York",
+    str_detect(contributor_address, " AL ") ~ "Alabama",
+    str_detect(contributor_address, " AK ") ~ "Alaska",
+    str_detect(contributor_address, " AZ ") ~ "Arizona",
+    str_detect(contributor_address, " AR ") ~ "Arkansas", 
+    str_detect(contributor_address, " CA" ) ~ "California", 
+    str_detect(contributor_address, " CO" ) ~ "Colorado",
+    str_detect(contributor_address, " CT ") ~ "Connecticut",
+    str_detect(contributor_address, " DE ") ~ "Delaware",
+    str_detect(contributor_address, " FL ") ~ "Florida",
+    str_detect(contributor_address, " GA ") ~ "Georgia",
+    str_detect(contributor_address, " HI ") ~ "Hawaii",
+    str_detect(contributor_address, " ID ") ~ "Idaho",
+    str_detect(contributor_address, " IL ") ~ "Illinois",
+    str_detect(contributor_address, " IN ") ~ "Indiana",
+    str_detect(contributor_address, " IA ") ~ "Iowa",
+    str_detect(contributor_address, " KS ") ~ "Kansas",
+    str_detect(contributor_address, " KY ") ~ "Kentucky",
+    str_detect(contributor_address, " LA ") ~ "Louisiana",
+    str_detect(contributor_address, " ME ") ~ "Maine",
+    str_detect(contributor_address, " MA ") ~ "Massachusetts",
+    str_detect(contributor_address, " MI ") ~ "Michigan",
+    str_detect(contributor_address, " MN ") ~ "Minnesota",
+    str_detect(contributor_address, " MS ") ~ "Mississippi",
+    str_detect(contributor_address, " MO ") ~ "Missouri",
+    str_detect(contributor_address, " MT ") ~ "Montana",
+    str_detect(contributor_address, " NE" ) ~ "Nebraska",
+    str_detect(contributor_address, " NV" ) ~ "Nevada ", 
+    str_detect(contributor_address, " NJ ") ~ "New Jersey",
+    str_detect(contributor_address, " NM ") ~ "New Mexico",
+    str_detect(contributor_address, " NY ") ~ "New York",
+    str_detect(contributor_address, " NC ") ~ "North Carolina",
+    str_detect(contributor_address, " ND ") ~ "North Dakota",
+    str_detect(contributor_address, " OH ") ~ "Ohio",
+    str_detect(contributor_address, " OK ") ~ "Oklahoma",
+    str_detect(contributor_address, " OR ") ~ "Oregon",
+    str_detect(contributor_address, " PA ") ~ "Pennsylvania",
+    str_detect(contributor_address, " RI ") ~ "Rhode Island",
+    str_detect(contributor_address, " SC ") ~ "South Carolina",
+    str_detect(contributor_address, " SD ") ~ "South Dakota",
+    str_detect(contributor_address, " TN ") ~ "Tennessee",
+    str_detect(contributor_address, " TX ") ~ "Texas",
+    str_detect(contributor_address, " UT ") ~ "Utah",
+    str_detect(contributor_address, " VT ") ~ "Vermont",
+    str_detect(contributor_address, " VA ") ~ "Virginia",
+    str_detect(contributor_address, " WA ") ~ "Washington",
+    str_detect(contributor_address, " WV ") ~ "West Virginia",
+    str_detect(contributor_address, " WI ") ~ "Wisconsin",
+    str_detect(contributor_address, " WY ") ~ "Wyoming",
+    str_detect(contributor_address, " DC ") ~ "Washington, D.C.",
+    
+    TRUE ~ contributor_address))
+```
+
+
+
+
+```{r}
+king_contribs_edited_states %>% 
+filter(contributor_state == "Illinois") %>% 
+  group_by(contributor_state) %>% 
+  summarise(sum_Ill = sum(contribution_amount))
 
 ```
 
-### Sentence 4
 
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
-```{r}
-# Put code to reverse engineer sentence here
 
-# Display results of code below this codeblock
 
-```
 
-### Sentence 5
-
-* **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
-
-```{r}
-# Put code to reverse engineer sentence here
-
-# Display results of code below this codeblock
-
-```
-
--30-
