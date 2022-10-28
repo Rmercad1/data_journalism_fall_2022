@@ -184,4 +184,17 @@ Remember that the first column is a joing comes from the FIRST data frame that e
 
 Write data frame:
 
+
 write_csv(dataframe, "data/my_datafram.csv")
+
+
+```{r}
+
+
+group_by(contributor_state) %>%
+summarise(total_state_amount = sum(contribution_amount),
+            mean_amount= mean(contribution_amount),
+          number_of_contribs=n())%>%
+arrange(desc(total_state_amount))
+```
+

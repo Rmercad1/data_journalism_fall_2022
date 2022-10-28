@@ -202,7 +202,7 @@ moore_contributions_filtered <- moore_contribs_edit_numeric %>%
     TRUE ~ contributor_address
   ))
 
-
+moore_contributions_filtered
 ```
 
 
@@ -268,13 +268,21 @@ perez_contributions_filtered <- perez_contribs_edit_numeric %>%
 
 
 ```{r}
-moore_contributions_filtered %>% 
-group_by(contributor_state) %>%
-summarise(total_state_amount = sum(contribution_amount),
-            mean_amount= mean(contribution_amount),
-          number_of_contribs=n())%>%
-arrange(desc(total_state_amount))
+other_variable<-moore_contributions_filtered %>% 
+  filter(year(contribution_date) == 2021) %>% 
+  group_by(contributor_state) %>% 
+  summarise(total_state = sum(contribution_amount),
+            mean_amount = mean(contribution_amount),
+            n=n()) %>% 
+  arrange(desc(total_state))
+
+other_variable
+
 ```
+
+
+
+
 ```{r}
 perez_contributions_filtered %>% 
 group_by(contributor_state) %>%
@@ -284,8 +292,10 @@ summarise(total_state_amount = sum(contribution_amount),
 arrange(desc(total_state_amount))
 ```
 ```{r}
-moore_out_of_state_contributions <- moore_contributions_filtered %>% 
+moore_out_of_state_contributions <- other_variable %>% 
   filter(!str_detect(contributor_state, "Maryland"))
+
+moore_out_of_state_contributions
 ```
 
 ```{r}
@@ -364,7 +374,7 @@ king_contribs_2021
 king_contribs_2021 %>%
   summarise(total_2021 = sum(contribution_amount))
 ```
-### Sentences 4:
+### Sentences 5:
 
 "Moore and King each received $100,000 each from Illinois." 
 
@@ -390,7 +400,7 @@ king_contribs_edited_states <- king_contribs_edited %>%
     str_detect(contributor_address, " CA" ) ~ "California", 
     str_detect(contributor_address, " CO" ) ~ "Colorado",
     str_detect(contributor_address, " CT ") ~ "Connecticut",
-    str_detect(contributor_address, " DE ") ~ "Delaware",
+    str_detect(contributor_addre ss, " DE ") ~ "Delaware",
     str_detect(contributor_address, " FL ") ~ "Florida",
     str_detect(contributor_address, " GA ") ~ "Georgia",
     str_detect(contributor_address, " HI ") ~ "Hawaii",
