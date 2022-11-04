@@ -400,7 +400,7 @@ king_contribs_edited_states <- king_contribs_edited %>%
     str_detect(contributor_address, " CA" ) ~ "California", 
     str_detect(contributor_address, " CO" ) ~ "Colorado",
     str_detect(contributor_address, " CT ") ~ "Connecticut",
-    str_detect(contributor_addre ss, " DE ") ~ "Delaware",
+    str_detect(contributor_address, " DE ") ~ "Delaware",
     str_detect(contributor_address, " FL ") ~ "Florida",
     str_detect(contributor_address, " GA ") ~ "Georgia",
     str_detect(contributor_address, " HI ") ~ "Hawaii",
