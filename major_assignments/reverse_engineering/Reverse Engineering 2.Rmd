@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+
+Reverse Engineer 2 Notebook
+
+Objective: Analyze data from the Blair and Elrich campaigns for county executive from 2018 and 2022.
+
+###Question 1:
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r echo=FALSE, message=FALSE}
+options(scipen=999)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+
+```
+
+First thing we did is load up the sets:
+
+##Blair:
+
+```{r}
+blair_contribs_2018 <-read.csv("data2/blair_contribs_2018.csv")
+```
+
+
+```{r}
+blair_contribs_2022 <-read.csv("data2/blair_contribs_2022.csv")
+```
+
+```{r}
+blair_expenses_2022 <-read.csv("data2/blair_expenses_2022.csv")
+```
+
+```{r}
+blair_expenses_2018 <-read.csv("data2/blair_expenses_2018.csv")
+```
+
+##Elrich:
+
+```{r}
+elrich_contribs_2018 <-read.csv("data2/elrich_contribs_2018.csv")
+```
+
+```{r}
+elrich_contribs_2022 <-read.csv("data2/elrich_contribs_2022.csv")
+```
+ 
+```{r}
+elrich_expenses_2018 <-read.csv("data2/elrich_expenses_2018.csv")
+```
+
+```{r}
+elrich_expenses_2022 <-read.csv("data2/elrich_expenses_2022.csv")
+```
+
+##County primary election results:
+
+```{r}
+dem_precincts_18 <- read.csv("data2/dem_precincts_2018.csv")
+```
+
+```{r}
+dem_precincts_22 <- read.csv("data2/dem_precincts_2022.csv")
+```
+
+```{r}
+dem_county_22 <- read.csv("data2/dem_county_2022.csv")
+```
+
+```{r}
+dem_county_18 <- read.csv("data2/dem_county_2018.csv")
+```
+
+
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+###Question 1:
+
+
+
+###Question 2:
+
+
+
+###Question 3:
+
+
+###Question 4:
+
+
+###Question 5:
+
+
+

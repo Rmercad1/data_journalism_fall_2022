@@ -1,0 +1,231 @@
+---
+title: "lab_09"
+author: "Derek Willis"
+date: "11/09/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+* the tidyverse, janitor and tigris libraries
+* you might choose to use the tidycensus library for Q3
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this lab.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load libraries
+library(tidyverse)
+library(sf)
+library(janitor)
+library(tigris)
+```
+
+Let's explore the election results from last night and make some maps! 
+
+## Questions 
+
+**Q1.** Make a county-level map of Maryland's results for governor using `md_gov_county.csv` in the data folder, calculating the difference between Wes Moore's percentage of the total votes and Dan Cox's percentage of the total votes and displaying that percentage difference on the map. What is the story here, and what is the county with the most interesting results?
+
+**A1.**  
+The story I would think that Moore beat Cox by a lot in the counties he won, and Cox beat Moore very largely in the counties that he carried, minus Anne Arundel, and Frederick. Honestly, no county surprises me. I've seen these maps before in most Maryland elections. Comparing it to something else, like perhaps the cannabis referendum might be more interesting in my opinion. But these results don't fundamentally surprise me. 
+
+
+```{r}
+md_gov_county <-read.csv("data/md_gov_county.csv")
+
+glimpse(md_gov_county)
+
+```
+
+```{r}
+md_total_votes <-md_gov_county%>%
+  mutate(total_votes = Moore+Cox+Lashar+Wallace+Harding+Write.ins) 
+md_total_votes
+```
+
+
+
+
+
+```{r}
+md_percents <-md_total_votes %>% 
+  mutate(moore_percent = Moore/total_votes*100) %>% 
+  mutate(cox_percent = Cox/total_votes*100)
+md_percents
+```
+```{r}
+md_percent_difference<-md_percents %>% 
+  mutate(percent_difference = moore_percent - cox_percent)
+md_percent_difference
+```
+```{r}
+counties <- counties()
+
+glimpse(counties)
+```
+```{r}
+md_counties <- counties %>%
+  filter(STATEFP == "24") %>% 
+  mutate(GEOID = as.numeric(GEOID))
+         
+head(md_counties)
+```
+
+
+```{r}
+md_counties_joined<- md_counties %>%inner_join(md_percent_difference)
+
+md_counties_joined
+```
+
+```{r}
+ggplot() +
+  geom_sf(data=md_counties_joined, aes(fill=percent_difference)) +
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma")
+```
+What is the story here, and what is the county with the most interesting results?
+
+
+
+**Q2.** Make another map showing the difference between Dan Cox's county-level performance in 2022 and Larry Hogan's in 2018, using percentages to compare the two as you did in Q1. You can use the dataframe you initially loaded for Q1, and you'll need to load the 2018 governor results in the data folder and join them to it before proceeding. Are there any counties where Cox got a higher percentage than Hogan? How would you describe the map showing the Hogan-Cox difference?
+
+Also answer this: is a map the best way to present this data? What else could you make that might convey more information?
+
+**A2.** There was no county where Cox beat Hogan, however, they got somewhat close in Somerset County, but that county has a low population so I wouldn't put importance to that since there are not many people in Somerset County.
+
+The map shows that Hogan did much better than Cox in the centre of the state considerably. This makes sense since in 2018, Hogan attracted a lot of Democratic support from highly democratic counties, easily winning the general election. Dan Cox on the other hand, was a hard-right trumpist who didn't attract anyone outside of his base. Democrats in the centre of the state flocked to Moore. 
+
+
+
+```{r}
+
+md_gov_county_18 <-read.csv("data/md_gov_county_18.csv")
+
+glimpse(md_gov_county_18)
+
+```
+```{r}
+md_total_votes_18 <-md_gov_county_18%>%
+  mutate(total_votes = Hogan+Jealous+Quinn+Schlakman+Write.ins) 
+md_total_votes_18
+```
+```{r}
+mdhogan_percent <-md_total_votes_18 %>% 
+  mutate(hogan_percent = Hogan/total_votes*100)
+mdhogan_percent
+
+```
+```{r}
+
+md_18_joined <- mdhogan_percent %>%left_join(md_percents,  by= "GEOID")
+
+md_18_joined
+```
+```{r}
+md_percent_18_difference<-md_18_joined %>% 
+  mutate(percent_difference_2022v2018 = hogan_percent - cox_percent)
+md_percent_18_difference
+```
+```{r}
+md_counties_joined_18_22<- md_counties %>%inner_join(md_percent_18_difference)
+
+md_counties_joined_18_22
+```
+
+```{r}
+ggplot() +
+  geom_sf(data=md_counties_joined_18_22, aes(fill=percent_difference_2022v2018)) +
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma")
+```
+**Q3** Which county has the highest percentage of mail ballots remaining to be counted? Using the `mail_remaining.csv` file in the data folder, calculate the percentage of mail ballots remaining, then map a county map of those percentages. Looking at both the map and the data, are there counties where the candidate currently leading the governor's race could, in theory, change?
+
+##Answer: 
+
+14/ 24 counties have not counted ANY of their mail-in ballots, which is insane since its been a few days after the election now. Baltimore City has counted the most with only 9/5% of their mail-in ballots remaining to be counted. Because there are so many counties that have yet to count, some results could change. I would say Frederick County, Charles County, Anne Arundel, and Talbot/ Dorcester on the Eastern Shore's results could change since those are somehwat "swingey counties" minus Charles. That one will go foor Moore. 
+
+```{r}
+mail_remaining <-read.csv("data/mail_remaining.csv")
+
+glimpse(mail_remaining)
+```
+```{r}
+mail_total <-mail_remaining%>%
+  mutate(percent_remaining = Remaining / Total_Returned*100) 
+mail_total
+```
+
+```{r}
+mail_total_map <- md_counties %>%inner_join(mail_total)
+
+mail_total_map 
+```
+```{r}
+ggplot() +
+  geom_sf(data=mail_total_map , aes(fill=percent_remaining)) +
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma")
+```
+
+
+**Q4.** Choose your own map adventure! In the data folder I've included county-level results for several other 2022 contests, including the Comptroller, Attorney General and the marijuana legalization amendment. I've also added the 2020 presidential results by county. Using one of the 2022 races that we haven't already used and at least one other contest for comparison, make a county-level map showing what you think is the most interesting aspect of that data, and describe the results in terms of a possible story. You can bring in other data, such as Census information, if you like.
+
+**A4.**  : Comparing Dan Cox votes to "Against" votes in the marijauna referendum. 
+
+```{r}
+md_weed_county <- read.csv("data/md_marijuana_county.csv")
+
+md_weed_county
+```
+
+
+```{r}
+md_gov_county <- read.csv("data/md_gov_county.csv")
+head(md_gov_county)
+```
+```{r}
+md_weed_counties<- md_gov_county %>%inner_join(md_weed_county)
+
+md_weed_counties
+```
+```{r}
+md_weed_compare <-md_weed_counties %>% 
+  mutate(total_gov_votes = Cox+Moore+Lashar+Wallace+Harding+Write.ins) %>% 
+  mutate(Cox_Weed_against_proportion = Against/Cox*100)
+md_weed_compare  
+```
+
+
+```{r}
+md_weed_joined<- md_counties %>%inner_join(md_weed_compare)
+
+md_weed_joined
+```
+```{r}
+head(md_weed_joined)
+```
+```{r}
+ggplot() +
+  geom_sf(data=md_weed_joined , aes(fill=Cox_Weed_against_proportion)) +
+  theme_minimal() +
+  scale_fill_viridis_b(option="magma")
+```
+###Answer:
+
+During the gubernatorial campaign, Dan Cox stated he supported decriminalization of marijuana but somewhat skirted around the question of whether he supported legalization. His votes against marijuana legalization in the General Assembly indicate he personally does not. I wanted to see what proportion of "against" voters in the marijuana referendum MAY have also voted for Cox. While its impossible to know for sure, we can do a proportion based on how many votes against legalization there are in a county, and how many votes for Cox there are.
+
+The map I made somewhat answered the question, as you can see from the data set I created, the proportions ranged from 50 - 90% of against voters. I did this by doing Cox voters/ against voters *100 to get a percent. Overall, this map doesn't show me much, and there is probably a better way to do it.
+
+Interestingly, in Charles, PG, Montgomery, Howard, and Baltimore City, MORE people voted against marijuana legalization than voted for Cox. That is a story in itself right there that marijuana was more unpopular than Dan Cox in those counties...  Or those voters simply voted against marijuana but voted for Moore or another candidate. 
+
+
