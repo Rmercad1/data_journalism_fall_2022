@@ -25,46 +25,154 @@ library(janitor)
 
 ```
 
-First thing we did is load up the sets:
 
-##Blair:
+
+First thing we did is load up the sets and clean the data:
+
+##Blair 2018 contribs:
 
 ```{r}
 blair_contribs_2018 <-read.csv("data2/blair_contribs_2018.csv")
 ```
 
+```{r}
+blair_contribs_2018_cleaned <-blair_contribs_2018 %>% 
+clean_names  
+  
+  
+blair_contribs_2018_cleaned %>%   
+mutate(contribution_date = mdy(contribution_date)) 
+blair_contribs_2018_cleaned
+```
+
+
+###Blair 2022 contribs
 
 ```{r}
 blair_contribs_2022 <-read.csv("data2/blair_contribs_2022.csv")
 ```
 
 ```{r}
+blair_contribs_2022_cleaned <- blair_contribs_2022 %>% 
+clean_names 
+```  
+  
+```{r}  
+blair_contribs_2022_cleaned %>% 
+mutate(contribution_date = mdy(contribution_date)) 
+
+blair_contribs_2022_cleaned
+```
+
+###Blair 2022 expenses
+
+```{r}
 blair_expenses_2022 <-read.csv("data2/blair_expenses_2022.csv")
 ```
+
+```{r}
+blair_expenses_2022_cleaned <-blair_expenses_2022 %>% 
+  clean_names 
+```
+
+```{r}
+blair_expenses_2022_cleaned %>% 
+mutate(contribution_date = mdy(expenditure_date)) 
+
+blair_expenses_2022_cleaned
+```
+
+###Blair 2018 expenses
+
 
 ```{r}
 blair_expenses_2018 <-read.csv("data2/blair_expenses_2018.csv")
 ```
 
-##Elrich:
+```{r}
+blair_expenses_2018_cleaned <-blair_expenses_2018 %>% 
+  clean_names()
+```
+
+```{r}
+blair_expenses_2018_cleaned %>% 
+  mutate(contribution_date = mdy(expenditure_date)) 
+blair_expenses_2018_cleaned 
+```
+
+##Elrich 2018 contribs:
 
 ```{r}
 elrich_contribs_2018 <-read.csv("data2/elrich_contribs_2018.csv")
 ```
 
 ```{r}
+elrich_contribs_2018_cleaned <-elrich_contribs_2018 %>% 
+  clean_names()
+```
+
+```{r}
+elrich_contribs_2018_cleaned %>% 
+  mutate(contribution_date = mdy(contribution_date)) 
+
+elrich_contribs_2018_cleaned
+```
+
+###Elrich Contribs 2022
+
+```{r}
 elrich_contribs_2022 <-read.csv("data2/elrich_contribs_2022.csv")
 ```
- 
+
+```{r}
+elrich_contribs_2022_cleaned <-elrich_contribs_2022 %>%
+  clean_names()
+```
+
+```{r}
+elrich_contribs_2022_cleaned %>% 
+  mutate(contribution_date = mdy(contribution_date)) 
+
+elrich_contribs_2022_cleaned
+```
+
+###Elrich 2018
+
 ```{r}
 elrich_expenses_2018 <-read.csv("data2/elrich_expenses_2018.csv")
 ```
 
 ```{r}
+elrich_expenses_2018_cleaned <-elrich_expenses_2018 %>% 
+  clean_names()
+```
+
+```{r}
+elrich_expenses_2018_cleaned %>% 
+    mutate(contribution_date = mdy(expenditure_date)) 
+elrich_expenses_2018_cleaned
+```
+###Elrich Expenses 2022
+
+```{r}
 elrich_expenses_2022 <-read.csv("data2/elrich_expenses_2022.csv")
 ```
 
+```{r}
+elrich_expenses_2022_cleaned <-elrich_expenses_2022 %>% 
+  clean_names()
+```
+
+```{r}
+elrich_expenses_2022_cleaned %>% 
+  mutate(contribution_date = mdy(expenditure_date)) 
+elrich_expenses_2022_cleaned
+```
+
+
 ##County primary election results:
+
+
 
 ```{r}
 dem_precincts_18 <- read.csv("data2/dem_precincts_2018.csv")
@@ -73,6 +181,10 @@ dem_precincts_18 <- read.csv("data2/dem_precincts_2018.csv")
 ```{r}
 dem_precincts_22 <- read.csv("data2/dem_precincts_2022.csv")
 ```
+
+
+
+
 
 ```{r}
 dem_county_22 <- read.csv("data2/dem_county_2022.csv")
@@ -85,37 +197,93 @@ dem_county_18 <- read.csv("data2/dem_county_2018.csv")
 
 
 
+###Question 1 1. How much money did David Blair and Marc Elrich fund themselves in 2022 vs. 2018? Blair is a businessman and millionaire, so it makes sense that he’s funding his own campaign. But how much exactly is he putting into it, and how does it compare to the past election and to how much Elrich’s campaign is raising?
+
+###2022:
 
 ```{r}
-
+blair_contribs_2022_cleaned %>%
+filter(contributor_name == "BLAIR  DAVID  THOMAS") %>%
+group_by(contributor_name) %>%
+summarize(total_blair = sum(contribution_amount))
 ```
 
 ```{r}
+elrich_contribs_2022_cleaned %>%
+group_by(contributor_name) %>%
+summarize(total_elrich = sum(contribution_amount)) %>%
+arrange(desc(total_elrich))
+```
+###2018:
 
+```{r}
+blair_contribs_2018_cleaned %>%
+filter(contributor_name == "BLAIR  DAVID  THOMAS") %>%
+group_by(contributor_name) %>%
+summarize(total_blair = sum(contribution_amount))
+```
+```{r}
+elrich_contribs_2018_cleaned %>%
+group_by(contributor_name) %>%
+summarize(total_elrich = sum(contribution_amount)) %>%
+arrange(desc(total_elrich))
+```
+ 
+###Question 2: Who were the top 5 contributors to Blair and Elrich in 2022? How about in 2018? What are their connections to the candidates?
+
+
+###2022
+```{r}
+top_blair_contribs_22 <- blair_contribs_2018_cleaned %>%
+  mutate(contributor_name = case_when(
+    contributor_name == "BLAIR  DAVID  THOMAS" ~ "Blair  David  Thomas",
+    TRUE ~ contributor_name
+  )) %>%
+  group_by(contributor_name) %>%
+  summarize(total = sum(contribution_amount)) %>%
+  arrange(desc(total)) %>%
+  head(5)
 ```
 
 ```{r}
-
+top_elrich_contribs_22 <- elrich_contribs_2022_cleaned %>%
+  group_by(contributor_name) %>%
+  summarize(total = sum(contribution_amount)) %>%
+  arrange(desc(total)) %>%
+  head(6)
 ```
 
+###2018
+
+```{r}
+top_blair_contribs_18 <- blair_contribs_2018_cleaned %>%
+  mutate(contributor_name = case_when(
+    contributor_name == "BLAIR  DAVID  THOMAS" ~ "Blair  David  Thomas",
+    TRUE ~ contributor_name
+  )) %>%
+  group_by(contributor_name) %>%
+  summarize(total = sum(contribution_amount)) %>%
+  arrange(desc(total)) %>%
+  head(5)
+```
+
+```{r}
+top_elrich_contribs_18 <- elrich_contribs_2018_cleaned %>%
+  group_by(contributor_name) %>%
+  summarize(total = sum(contribution_amount)) %>%
+  arrange(desc(total)) %>%
+  head(6)
+```
+
+###Question 3: David Blair got more early/election day votes in 2022. Elrich got more Mail-in votes in 2022. How did that compare to 2018? People want to know how Marc Elrich won both times, first by 72 voters in 2018 and then 32 in 2022. Where did Marc do well in the three categories: Early voting, election day, and mail-in votes. Did this sway the result at all?
 
 
 
-###Question 1:
+
+###Question 4: Which parts of the county voted for Elrich and which voted for Blair based on precinct-level voting? Are there differences in demographics of those areas? What about income? 
 
 
-
-###Question 2:
-
-
-
-###Question 3:
-
-
-###Question 4:
-
-
-###Question 5:
+###Question 5: Where did David Blair and Marc Elrich spend their money on campaign finance resources? Ie: Meta advertisements, yard signs, TV, consulting? This would be interesting to know since Blair made a very big concerted effort to build his profile during the campaign while Elrich relied on incumbency and mainly TV ads to help him. 
 
 
 
