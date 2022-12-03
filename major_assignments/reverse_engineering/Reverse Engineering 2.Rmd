@@ -277,13 +277,75 @@ top_elrich_contribs_18 <- elrich_contribs_2018_cleaned %>%
 
 ###Question 3: David Blair got more early/election day votes in 2022. Elrich got more Mail-in votes in 2022. How did that compare to 2018? People want to know how Marc Elrich won both times, first by 72 voters in 2018 and then 32 in 2022. Where did Marc do well in the three categories: Early voting, election day, and mail-in votes. Did this sway the result at all?
 
+```{r}
+dem_county_18_cleaned <-dem_county_18 %>% 
+  clean_names()
+```
+
+
+```{r}
+dem_county_22_cleaned <-dem_county_22 %>% 
+  clean_names()
+```
+
+
+
+```{r}
+
+blair <- dem_county_18_cleaned %>%
+filter(candidate_name == "David Blair")
+elrich <-  dem_county_18_cleaned %>%
+  filter(candidate_name == "Marc Elrich")
+blair_elrich <-  bind_rows(blair, elrich)
+blair_elrich
+```
+
+
 
 
 
 ###Question 4: Which parts of the county voted for Elrich and which voted for Blair based on precinct-level voting? Are there differences in demographics of those areas? What about income? 
 
 
+
+
+
 ###Question 5: Where did David Blair and Marc Elrich spend their money on campaign finance resources? Ie: Meta advertisements, yard signs, TV, consulting? This would be interesting to know since Blair made a very big concerted effort to build his profile during the campaign while Elrich relied on incumbency and mainly TV ads to help him. 
 
 
+```{r}
+blair_expenses_2022_cleaned %>%
+group_by(expense_category) %>%
+summarize(total_category = sum(amount)) %>%
+arrange(desc(total_category))
+#spent nearly $3.1 mil in 2022 ... top 3 are Media, Salarties and Direct Mail by Mail House (R)
+```
+#dive into media
+```{r}
+blair_expenses_2022_cleaned %>%
+filter(expense_category == "Media") %>%
+group_by(expense_purpose) %>%
+summarize(total_category = sum(amount)) %>%
+arrange(desc(total_category))
+```
+# Spent 1773.00	 on online advertising
 
+```{r}
+elrich_expenses_2022_cleaned %>%
+group_by(expense_category) %>%
+summarize(total_category = sum(amount)) %>%
+arrange(desc(total_category))
+```
+Elrich spent $528393.29 on media which is significantly less than Blair
+
+```{r}
+elrich_expenses_2022_cleaned %>%
+filter(expense_category == "Media") %>%
+group_by(expense_purpose) %>%
+summarize(total_category = sum(amount)) %>%
+arrange(desc(total_category))
+```
+
+#Elrich spent 32K on consulting fees.
+
+This is what I wrote for No. 5 "There are signifant differences in spending between Elrich and Blair here and it shows how the capital on hand can really influence the means a candidate has to win or lose a race. Elrich in 2022 went all-in on TV spending. Blair spent a lot more in 2018 as well."
