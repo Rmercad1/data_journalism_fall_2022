@@ -243,6 +243,7 @@ top_blair_contribs_22 <- blair_contribs_2018_cleaned %>%
   summarize(total = sum(contribution_amount)) %>%
   arrange(desc(total)) %>%
   head(5)
+top_blair_contribs_22
 ```
 
 ```{r}
@@ -251,6 +252,7 @@ top_elrich_contribs_22 <- elrich_contribs_2022_cleaned %>%
   summarize(total = sum(contribution_amount)) %>%
   arrange(desc(total)) %>%
   head(6)
+top_elrich_contribs_22
 ```
 
 ###2018
@@ -265,6 +267,7 @@ top_blair_contribs_18 <- blair_contribs_2018_cleaned %>%
   summarize(total = sum(contribution_amount)) %>%
   arrange(desc(total)) %>%
   head(5)
+top_blair_contribs_18
 ```
 
 ```{r}
@@ -273,6 +276,7 @@ top_elrich_contribs_18 <- elrich_contribs_2018_cleaned %>%
   summarize(total = sum(contribution_amount)) %>%
   arrange(desc(total)) %>%
   head(6)
+top_elrich_contribs_18
 ```
 
 ###Question 3: David Blair got more early/election day votes in 2022. Elrich got more Mail-in votes in 2022. How did that compare to 2018? People want to know how Marc Elrich won both times, first by 72 voters in 2018 and then 32 in 2022. Where did Marc do well in the three categories: Early voting, election day, and mail-in votes. Did this sway the result at all?
@@ -305,6 +309,27 @@ blair_elrich
 
 
 ###Question 4: Which parts of the county voted for Elrich and which voted for Blair based on precinct-level voting? Are there differences in demographics of those areas? What about income? 
+
+\\
+
+```{r}
+library(sf)
+```
+
+
+```{r}
+moco_precincts <- st_read("data2/moco_boundary.gdb")
+
+glimpse(moco_precincts)
+```
+
+
+```{r}
+moco_precincts %>%
+  ggplot() +
+  geom_sf() +
+  theme_minimal()
+```
 
 
 
