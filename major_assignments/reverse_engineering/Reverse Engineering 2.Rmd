@@ -316,23 +316,160 @@ blair_elrich
 library(sf)
 ```
 
+```{r}
+moco_prec_2022 <- st_read("data2/MontMD_2022/MontMD_2022.shp") %>% 
+  st_zm(drop=TRUE)
+glimpse(moco_prec_2022)
+```
+
+
+
 
 ```{r}
-moco_precincts <- st_read("data2/moco_boundary.gdb")
+moco_boundaries <- st_read("data2/moco_boundary.gdb")
 
-glimpse(moco_precincts)
+glimpse(moco_boundaries)
 ```
 
 
 ```{r}
-moco_precincts %>%
+moco_boundaries %>%
   ggplot() +
   geom_sf() +
+  theme_minimal()
+```
+```{r}
+moco_prec_2022
+head(moco_prec_2022)
+```
+```{r}
+write_csv(moco_prec_2022, "data2/moco_prec_2022.csv")
+```
+
+```{r}
+moco_prec_2022 %>%
+  ggplot() +
+  geom_sf() +
+  theme_minimal()
+```
+```{r}
+moco_22_pre_results<-read.csv("data2/Moco_22_pre_results.csv")
+head(moco_22_pre_results)
+```
+
+```{r}
+moco_22_pre_results_cleaned <-moco_22_pre_results %>% 
+  clean_names()
+moco_22_pre_results_cleaned
+```
+
+
+
+
+```{r}
+moco_22_pre_results_filtered<-moco_22_pre_results_cleaned %>%
+filter(candidate_name == "David T. Blair" | candidate_name == "Marc Elrich")
+moco_22_pre_results_filtered
+```
+```{r}
+blair_results_2022_filter<-moco_22_pre_results_filtered %>% 
+  filter(candidate_name == "David T. Blair")
+blair_results_2022_filter
+```
+
+
+
+
+```{r}
+blair_results_2022_filter_total <-blair_results_2022_filter%>% 
+  mutate(total_votes_blair = early_votes + election_night_votes + mail_in_ballot_1_votes + provisional_votes + mail_in_ballot_2_votes)
+blair_results_2022_filter_total
+```
+```{r}
+blair_results_joined_2022<- inner_join(moco_prec_2022, blair_results_2022_filter_total, by=c("VOTESPRE"="election_district_precinct"))
+```
+
+
+
+
+###Blair Map####
+```{r}
+ggplot() +
+  geom_sf(data=blair_results_joined_2022, aes(fill=total_votes_blair)) +
+  scale_fill_viridis_b(option="magma")+
+  theme_minimal()
+```
+####Elirich map####
+```{r}
+moco_22_pre_results_filtered_elrich <-moco_22_pre_results_cleaned %>%
+filter(candidate_name == "Marc Elrich")
+moco_22_pre_results_filtered_elrich
+```
+```{r}
+elrich_22_filtered_total <-moco_22_pre_results_filtered_elrich%>% 
+  mutate(total_votes_elrich = early_votes + election_night_votes + mail_in_ballot_1_votes + provisional_votes + mail_in_ballot_2_votes)
+elrich_22_filtered_total
+```
+```{r}
+elrich_results_joined_2022_map<- inner_join(moco_prec_2022, elrich_22_filtered_total, by=c("VOTESPRE"="election_district_precinct"))
+```
+
+```{r}
+ggplot() +
+  geom_sf(data=elrich_results_joined_2022_map, aes(fill=total_votes_elrich)) +
+  scale_fill_viridis_b(option="magma")+
+  theme_minimal()
+```
+###percentage_change***
+```{r}
+blair_results_2022_filter_total
+```
+
+```{r}
+elrich_22_filtered_total
+```
+
+
+```{r}
+both_joined_2022<- left_join(blair_results_2022_filter_total, elrich_22_filtered_total, by=c("county"="county"))
+```
+
+```{r}
+both_joined_2022
+```
+```{r}
+both_joined_mutated<-both_joined_2022 %>% 
+  mutate(difference = total_votes_elrich-total_votes_blair)
+both_joined_mutated
+
+```
+```{r}
+both_joined_map<- inner_join(moco_prec_2022, both_joined_mutated, by=c("VOTESPRE"="election_district_precinct.x"))
+```
+
+```{r}
+ggplot() +
+  geom_sf(data=both_joined_map, aes(fill=difference)) +
+  scale_fill_viridis_b(option="magma")+
   theme_minimal()
 ```
 
 
 
+
+
+
+
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(results_joined_2022)+
+  geom_map(aes(map_id = region))+
+  expand_limits()
+```
 
 
 ###Question 5: Where did David Blair and Marc Elrich spend their money on campaign finance resources? Ie: Meta advertisements, yard signs, TV, consulting? This would be interesting to know since Blair made a very big concerted effort to build his profile during the campaign while Elrich relied on incumbency and mainly TV ads to help him. 
