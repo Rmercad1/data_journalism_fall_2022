@@ -1,0 +1,38 @@
+---
+
+title: "State Profile Assignment"
+author: "Ryan Mercado"
+date: "2022-12-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Load libraries####
+
+```{r} 
+options(scipen=999)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+```
+###Loading in the data###
+
+```{r}
+dem_rec <-read.csv("Data/dem_rec.csv")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+

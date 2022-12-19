@@ -362,6 +362,11 @@ moco_22_pre_results_cleaned <-moco_22_pre_results %>%
   clean_names()
 moco_22_pre_results_cleaned
 ```
+```{r}
+moco_22_executive<-moco_22_pre_results_cleaned %>% 
+  filter(office_name == "County Executive")
+moco_22_executive
+```
 
 
 
@@ -371,6 +376,9 @@ moco_22_pre_results_filtered<-moco_22_pre_results_cleaned %>%
 filter(candidate_name == "David T. Blair" | candidate_name == "Marc Elrich")
 moco_22_pre_results_filtered
 ```
+
+
+
 ```{r}
 blair_results_2022_filter<-moco_22_pre_results_filtered %>% 
   filter(candidate_name == "David T. Blair")
@@ -385,6 +393,7 @@ blair_results_2022_filter_total <-blair_results_2022_filter%>%
   mutate(total_votes_blair = early_votes + election_night_votes + mail_in_ballot_1_votes + provisional_votes + mail_in_ballot_2_votes)
 blair_results_2022_filter_total
 ```
+
 ```{r}
 blair_results_joined_2022<- inner_join(moco_prec_2022, blair_results_2022_filter_total, by=c("VOTESPRE"="election_district_precinct"))
 ```
@@ -405,11 +414,15 @@ moco_22_pre_results_filtered_elrich <-moco_22_pre_results_cleaned %>%
 filter(candidate_name == "Marc Elrich")
 moco_22_pre_results_filtered_elrich
 ```
+
+
 ```{r}
 elrich_22_filtered_total <-moco_22_pre_results_filtered_elrich%>% 
   mutate(total_votes_elrich = early_votes + election_night_votes + mail_in_ballot_1_votes + provisional_votes + mail_in_ballot_2_votes)
 elrich_22_filtered_total
 ```
+
+
 ```{r}
 elrich_results_joined_2022_map<- inner_join(moco_prec_2022, elrich_22_filtered_total, by=c("VOTESPRE"="election_district_precinct"))
 ```
@@ -437,12 +450,16 @@ both_joined_2022<- left_join(blair_results_2022_filter_total, elrich_22_filtered
 ```{r}
 both_joined_2022
 ```
+
 ```{r}
 both_joined_mutated<-both_joined_2022 %>% 
   mutate(difference = total_votes_elrich-total_votes_blair)
 both_joined_mutated
 
 ```
+
+
+
 ```{r}
 both_joined_map<- inner_join(moco_prec_2022, both_joined_mutated, by=c("VOTESPRE"="election_district_precinct.x"))
 ```
@@ -457,7 +474,75 @@ ggplot() +
 
 
 
+###percentage_change***
 
+
+```{r}
+moco_22_executive <- moco_22_pre_results_cleaned %>%
+  filter(office_name == "County Executive") %>% 
+  mutate(candidate_total = early_votes + election_night_votes + mail_in_ballot_1_votes + mail_in_ballot_2_votes + provisional_votes)
+```
+
+```{r}
+moco_combining_candidates_22 <- moco_22_executive %>%
+  group_by(election_district_precinct) %>%
+  summarise(total_precinct_votes = sum(early_votes + election_night_votes + mail_in_ballot_1_votes + mail_in_ballot_2_votes + provisional_votes))
+```
+
+```{r}
+exec_combined_joined <- left_join(moco_22_executive, moco_combining_candidates_22)
+exec_combined_joined
+```
+
+```{r}
+exec_joined_percentages <- exec_combined_joined %>%
+  mutate(candidate_percents = candidate_total/total_precinct_votes*100)
+exec_joined_percentages
+```
+
+```{r}
+pivot_candidates <- exec_joined_percentages %>%
+  select(election_district_precinct, candidate_name, candidate_percents, total_precinct_votes) %>% 
+  pivot_wider(names_from = candidate_name, values_from = candidate_percents, values_fill = 0) %>%
+  clean_names()
+```
+
+```{r}
+pivot_candidates_joined<- inner_join(moco_prec_2022, pivot_candidates, by=c("VOTESPRE"="election_district_precinct")) %>%
+  mutate(blair_elrich_diff = david_t_blair - marc_elrich)
+```
+
+#Creating precinct percentage maps
+-negatives are where elrich won, so the dark
+
+```{r}
+ggplot() +
+  geom_sf(data=pivot_candidates_joined, aes(fill=blair_elrich_diff)) +
+  scale_fill_viridis_b(option="magma")+
+  theme_minimal()
+```
+Blair-Elrich Map diff:
+
+First impressions of this map show me that Marc Elrich won in the raciall diverse areas of the county. This includes Silver Spring, Takoma Park (his home), Rockville, parts of Bethesda, and interestingly some of the white-dominated suburbs in the eastern part of the county such as Ashton, Sandy Spring, Colesville, Cloverly, and others. Elrich also won the western peripheries of the county such as Poolesville and Barnesville.
+
+As for Blair, he won what I would characterize as "the rich" areas of the county, which includ Chevy Chase, and Potomac. Interestingly, When looking at other places that Blair won, he also won places like Rockville, Gaithersburg, Germantown, Olney, and the upper sparsly-populated portions of the county. Income-wise, these areas are not as uniform in their high median incomes like Chevy Chase and Potomac. 
+
+One interesting place where Blair one was in the eastern part of the county amonf a swath of Elrich votes. This is Kemp Mill. According to Census figures found at https://www.census.gov/quickfacts/kempmillcdpmaryland, the medium household income is $140,000. But that doesn't answer the question of why they voted for Blair over Elrich. Another reason could be its demographics. The area is very Jewish and, according to the Washington Examiner, https://www.washingtonexaminer.com/tightly-knit-kemp-mill, has a very large orthodox Jewish voting pattern. Its unclear if this had any impact on the race since its unknown what Blair's religion is. Elrich himself is Jewish, but in this case, the Orthodox community may not have voted for him? Its hard to say. Other largely jewish areas of the county such as Chevy Chase, parts of Rockville, and Potomac also voted for Blair. 
+
+```{r}
+pivot_candidates_joined<- inner_join(moco_prec_2022, pivot_candidates, by=c("VOTESPRE"="election_district_precinct")) %>%
+  mutate(elrich_blair_diff = david_t_blair - marc_elrich) %>% 
+  filter(elrich_blair_diff >= 10)
+pivot_candidates_joined
+ggplot() +
+  geom_sf(data=moco_prec_2022) +
+  geom_sf(data=pivot_candidates_joined, aes(fill=elrich_blair_diff)) +
+  scale_fill_viridis_b(option="magma")+
+  theme_minimal()
+```
+Map two:
+
+This map shows where the the percentage between Blair and Elrich was larger than 20%. What I see here is that the majority of the county was competitive, regardless of where you were. Blair won by somewhat big margins in areas like Potomac, which doesn't surprise me. Potomac has one of the highest median incomes in the county and Blair himself is a businessman millionaire. The other areas he somewhat won by a little bigger margin are Kemp Mill in the eastern part of the county, and upper Montgomvery County near Mt. Airy.
 
 
 
@@ -465,11 +550,7 @@ ggplot() +
 library(ggplot2)
 ```
 
-```{r}
-ggplot(results_joined_2022)+
-  geom_map(aes(map_id = region))+
-  expand_limits()
-```
+
 
 
 ###Question 5: Where did David Blair and Marc Elrich spend their money on campaign finance resources? Ie: Meta advertisements, yard signs, TV, consulting? This would be interesting to know since Blair made a very big concerted effort to build his profile during the campaign while Elrich relied on incumbency and mainly TV ads to help him. 

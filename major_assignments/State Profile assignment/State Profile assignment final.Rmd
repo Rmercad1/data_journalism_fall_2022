@@ -1,0 +1,621 @@
+---
+title: "State Profile Assignment"
+author: "Ryan Mercado"
+date: "2022-12-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Load libraries####
+
+```{r} 
+options(scipen=999)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+
+```
+
+#Introduction: 
+I was given the state of Colorado and so I will compare the Colorado Democratic Party and the Colorado Republican Committee. Why the GOP calls their party a committee in Colorado, I don't know but the data is still there. The following is that analysis. Please note, two maps were made with Data Wrapper and their links are posted in this notebook.
+
+
+
+##Loading in the data### : 
+
+Democratic Party of Colorado receipts:
+```{r}
+dem_rec <- read_csv("data/dem_rec.csv")
+```
+
+Democratic Party of Colorado spending:
+```{r}
+dem_spent <- read_csv("data/dem_spent.csv")
+```
+
+Republican Committee of Coloardo receipts:
+```{r}
+rep_rec<- read_csv("data/rep_rec.csv")
+```
+
+Republican Committee of Colorado spending:
+```{r}
+rep_spent<-read_csv("data/rep_spent.csv")
+```
+
+###cleaning the data###
+
+First thing I did was clean the data:
+
+```{r}
+dem_rec_clean<-dem_rec %>% clean_names()
+```
+
+```{r}
+dem_spent_clean<-dem_spent %>% clean_names()
+```
+
+```{r}
+rep_rec_clean<-rep_rec %>% clean_names()
+```
+
+```{r}
+rep_spent_clean<-rep_spent %>% clean_names()
+```
+
+Next I wanted to find the parties' top donors, regardless of entity type.
+
+###Finding the parties top donors###
+
+#Question# : What does the top donations lists for both indiviual and all-entities tell us about where the state parties get their money?
+
+Democratic: Not surprisingly, the top donors for Democrats are from top national democratic parties and committees. The top donor was the Democratic Senatorial campaign committee, followed by the democratic congressional campaign committee, and then followed by the DNC itself. The top individual was Rebecca Leffingwell of Louisville, Colorado. I couldn't find much about her online except that she seems to donate a lot to democrats. Interestingly, Fred Eychaner of Illinois donated to Colorado. A quick google search shows me he is the chairman of Newsweb corporation based in Chicago. So it seems the dems get their donations from national democratic parties, and also from corporate donors.
+
+Republican: The top donor, regardless of entity was the NRSC, which I did not know of and looked up to find out it stands for the National Republican Senatorial Committee. Makes sense. Other top donors are RNC itself,a victory committee for GOP senatorial candiate in CO, Joe O'Dea, and "Take Back the Senate." Like the dems, it seems the GOP in Colorado get most of their donations from national republican parties and campaigns. 
+For individual donations, the top ones are a husband and wife: Nancy and Philip Anschutz, a high profile conservative billionaire family who hold stock in businesses from energy to newspapers. They own the Washington Examiner, a conservative publication. They live in Denver. Interestingly, you have to go far down the list to find any out of state donors and you come across Wallace Cheves of South Carolina, who gave $1,000, who a quick google search leads me to fine he's a GOP megadonor who's been sued for money fraud and tax evasion. 
+
+
+#Democratic:
+```{r}
+dem_rec_clean %>% 
+  group_by(contributor_name, entity_type) %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total))
+
+
+```
+Then I found individual donors:
+
+Dem Top individual donors
+```{r}
+dem_rec_clean %>% 
+  group_by(contributor_name, entity_type, contributor_state) %>% 
+  filter(entity_type == "IND") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total))
+
+```
+Rinse and repeat for the GOP:
+
+#Republican:
+```{r}
+rep_rec_clean %>% 
+  group_by(contributor_name, entity_type) %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total))
+
+
+```
+Rep Top individual donors:
+```{r}
+rep_rec_clean %>% 
+  group_by(contributor_name, entity_type, contributor_state) %>% 
+  filter(entity_type == "IND") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total))
+```
+
+
+
+###Finding out which major cites the doncations came from##
+
+###QUestion: Is there anything in the contributor city that can tell us anything about the data?
+
+Answer: No. Major cities from contributions, regardless of entity type were from Colorado with the small exception being DC, which makes sense since that is where the DNC and RNC are headquartered.
+
+```{r}
+dem_rec_clean %>%
+  group_by(contributor_city, contributor_state) %>%
+  summarise(count_contribs = n()) %>%
+  arrange(desc(count_contribs))
+```
+Rep:
+
+```{r}
+rep_rec_clean %>%
+  group_by(contributor_city, contributor_state) %>%
+  summarise(count_contribs = n()) %>%
+  arrange(desc(count_contribs))
+```
+
+###Finding more about the data####
+
+#Question#: What does the data tell us about the type / monetary amount of donations that individuals gave? Not parties or committees. (Since corporations can give large amounts, that skews the data so they're left out)
+
+Answer: 
+Dems: Interestingly, the mean amount given by individuals is $1,088 which is not a small number. But the median amount is $75. The total amount was $2,934,165, not a small number either, so the mean makes sense but the median is surprising. When I go down further to the second code in this section, I see that donations between $10 and $25 are the most given with 847 times as its number. The Dems got a lot of small donations it seems.
+
+Republicans: It is somewhat similar to the Dem data, but smaller in terms of money. The mean is in the 500Ks, but the median is the same as the Dems at $75! We can also see that Republicans got a total of $1321327 from individual donations, meaning Democrats received more donations than republicans with over two million. When looking at monetary types of donations, it looks like republicans actually have more large donations from individuals with Between $101 and $500 being the largest! Stark difference from the Dems who got many smaller donations. Are Republican donors in Colorado richer?
+
+##Find out about the amount of donations individual people generally gave:
+Democratic: 
+```{r}
+dem_rec_clean %>%
+  filter(entity_type == "IND") %>% 
+  summarise(count_contribs = n(),total_amount = sum(contribution_receipt_amount),mean_amount = mean(contribution_receipt_amount),median_amount = median(contribution_receipt_amount)
+  ) %>%
+  arrange(desc(count_contribs))
+```
+
+
+```{r}
+dem_rec_clean_categories <- dem_rec_clean %>%
+  filter(entity_type == "IND") %>% 
+  mutate(
+    amount_category = case_when(
+        contribution_receipt_amount < 10 ~ "Less than $10",
+        contribution_receipt_amount >= 10 & contribution_receipt_amount <= 25 ~ "Between $10 and $25",
+        contribution_receipt_amount > 25 & contribution_receipt_amount <= 50 ~ "Between $26 and $50",
+        contribution_receipt_amount > 50 & contribution_receipt_amount <= 100 ~ "Between $51 and $100",
+        contribution_receipt_amount > 101 & contribution_receipt_amount <= 501 ~ "Between $101 and $500",
+        contribution_receipt_amount >= 501 ~ "More than $501"
+      )
+  )
+head(dem_rec_clean_categories)
+dem_rec_clean_categories %>%
+  group_by(amount_category) %>%
+  summarize(total_amount = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total_amount))
+dem_rec_clean_categories %>%
+  group_by(amount_category) %>%
+  summarise(
+    count_contribs = n()
+  ) %>%
+  arrange((count_contribs))
+```
+
+Republican: 
+```{r}
+rep_rec_clean %>%
+   filter(entity_type == "IND") %>% 
+  summarise(count_contribs = n(),total_amount = sum(contribution_receipt_amount),mean_amount = mean(contribution_receipt_amount),median_amount = median(contribution_receipt_amount)
+  ) %>%
+  arrange(desc(count_contribs))
+```
+
+```{r}
+rep_rec_clean_categories <-rep_rec_clean %>%
+  filter(entity_type == "IND") %>% 
+  mutate(
+    amount_category = case_when(
+        contribution_receipt_amount < 10 ~ "Less than $10",
+        contribution_receipt_amount >= 10 & contribution_receipt_amount <= 25 ~ "Between $10 and $25",
+        contribution_receipt_amount > 25 & contribution_receipt_amount <= 50 ~ "Between $26 and $50",
+        contribution_receipt_amount > 50 & contribution_receipt_amount <= 100 ~ "Between $51 and $100",
+        contribution_receipt_amount > 101 & contribution_receipt_amount <= 501 ~ "Between $101 and $500",
+        contribution_receipt_amount >= 501 ~ "More than $501"
+      )
+  )
+head(rep_rec_clean_categories)
+rep_rec_clean_categories %>%
+  group_by(amount_category) %>%
+  summarize(total_amount = sum(contribution_receipt_amount)) %>%
+  arrange(desc(total_amount))
+rep_rec_clean_categories %>%
+  group_by(amount_category) %>%
+  summarise(
+    count_contribs = n()
+  ) %>%
+  arrange((count_contribs))
+```
+####Finding individual maximum donations?####
+
+#Question#: What does the data showing the max donations individuals may give? The max is $2,900. 
+
+Answer: This doesn't really show me much except for the interesting people from out of state. In the Dems code, Frederick Baron looks to be a lawyer from California; Neil Bluhm is a billionaire who lives in Chicago and he gave the max amount to Colorado. Husband and wife Becky and Mark Levin are in the Biotech industry in Massachusetts. Ellen and Richard Richman of Connecticut run some sort of foundation, George Krumme is an oil executive, and Thomas Wheeler was the former Chair of the Federal Communications Commission. A pretty diverse group! The Dem's individual max donors are from many different business and philathropic areas. 
+
+As for Republicans, its a little underwhelming, only having four, all from Colorado. Scott Anderson looks to be an insurance agent in Colorado Springs via Likedin (If that is truly the correct Scott Anderson). Anne Draper looks to be a ranch owner (again via linkedin, subject to error), Kevin Kauffman might be a businessman, and I couldn't find anything on Dr. Richard Dusty Oliver. Interesting name though.
+
+Taking that all together, seems like Dems receive individual max donations from a variety of people, while republicans struggled to get anyone outside of Colorado to give the maximum individual donation. 
+
+Democratic:
+```{r}
+dem_rec_clean %>% 
+  filter(contribution_receipt_amount == 2900) %>%
+  group_by(contributor_last_name, contributor_first_name, contribution_receipt_amount, contributor_state) %>%
+  summarise (
+    count_contribs = n()
+  ) %>% 
+  arrange((count_contribs))
+  
+```
+Republican:
+```{r}
+rep_rec_clean %>% 
+  filter(contribution_receipt_amount == 2900) %>%
+  group_by(contributor_last_name, contributor_first_name, contribution_receipt_amount, contributor_state) %>%
+  summarise (
+    count_contribs = n()
+  ) %>% 
+  arrange((count_contribs))
+```
+
+
+###Money from colorado and then out of state:
+
+###Question##How much individual contributions came from Colorado and Out of state for the two parties? What does this tell us?
+
+Answer: 
+
+Dems got $1,423,290 from inside Colorado alone, and got just a little more from out of state contributions with $1,509,630. Top states are unsurprisingly California and New York, where bastions of democrats live. Its interesting Florida is on this list but Florida has a high population, obviously some Dems live there. 
+
+Republicans got $1,225,414 from inside Colorado but only a meagre $95,912.95 from other states. Thats shocking. The top two states are California and Texas. Texas makes sense, many republicans live there. California, in my opinion, also makes sense too. It has a population of almost 40 million people, thats more than Canada. Obviously there are many many Republicans in that state who have money to spend
+
+Democrats:
+
+Colorado:
+```{r}
+dem_donors<- dem_rec_clean %>% 
+filter(contributor_state == "CO") %>%
+filter(entity_type == "IND") %>% 
+group_by(contributor_state) %>% 
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+dem_donors
+```
+
+Out of state combined:
+```{r}
+dem_donors_out_of_state<- dem_rec_clean %>% 
+filter(contributor_state != "CO") %>%
+filter(entity_type == "IND") %>%
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+dem_donors_out_of_state
+```
+Out of state per state:
+
+```{r}
+dem_donors_out_of_state<- dem_rec_clean %>% 
+filter(contributor_state != "CO") %>%
+filter(entity_type == "IND") %>%
+group_by(contributor_state) %>% 
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+dem_donors_out_of_state
+```
+##Putting this into a map:
+
+```{r}
+write_csv(dem_donors_out_of_state, "data/dem_donors_out_of_state.csv")
+```
+
+Map for out of state contribution amounts visualized:
+
+https://www.datawrapper.de/_/P9xIV/
+https://datawrapper.dwcdn.net/P9xIV/2/
+
+Repulicans:
+```{r}
+rep_donors<- rep_rec_clean %>% 
+filter(contributor_state == "CO") %>%
+filter(entity_type == "IND") %>%  
+group_by(contributor_state) %>% 
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+rep_donors
+```
+```{r}
+rep_donors_out_of_state<- rep_rec_clean %>% 
+filter(contributor_state != "CO") %>%
+filter(entity_type == "IND") %>%  
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+rep_donors_out_of_state
+```
+ 
+ 
+ 
+Out of state by state:  
+```{r}
+rep_donors_out_of_state<- rep_rec_clean %>% 
+filter(contributor_state != "CO") %>%
+filter(entity_type == "IND") %>%  
+group_by(contributor_state) %>% 
+summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+rep_donors_out_of_state
+```
+
+```{r}
+write_csv(rep_donors_out_of_state, "data/rep_donors_out_of_state.csv")
+```
+
+##Puting this into a Map:
+
+https://datawrapper.dwcdn.net/YFmW4/1/
+https://www.datawrapper.de/_/YFmW4/
+
+
+
+
+#####Expenditures###:
+
+
+A note on Open Refine Usage:
+
+I ultimately chose not to put this data through open refine for one reason. While some recipient_names are listed more than once, it is the "disbursement_description" that differentiates them. For example: MISSION CONTROL, INC shows up a few times but the "disbursement_description"is different. One entry reads "	ADVERTISING EXPENSES - EXEMPT ACTIVITY MAILERS IN OPPOSITION TO RON HANKS" while another reads "ADVERTISING EXPENSE - EXEMPT ACTIVITY MAILERS IN SUPPORT OF CROW." Ron Hanks is a republican legislator in the Colorado State Legislature, so it makes sense that dems are spending money against him. Crow refers to Jason Crow, US Congressman from Colorado's 6th district. It makes sense Dems are spending money in support of him.
+
+I therefore don't want to mess with these two because they're about different races. There are other instances in this data that I won't list here but you get the idea. Therefore, I chose not to use Open Refine. 
+
+
+
+##Finding the top expenditures per party:
+
+#Question: what do the top expidentures tell us about each party?
+
+Answer: Dems spent the most with "Paychex" a payroll company based in PA. Second is Landslide Political, a canvassing org in Utah, then Mission Control and "Kabza" both on advertising. Spending on the DNC came in 5th place. 
+
+For Republicans: Interestingly the top expenditure were legal fees to BROWNSTEIN, HYATT, FARBER, SCHRECK, LLP in Colorado. Which, a quick google search leads me to find this law firm represented the Colorado Republican Committee in a monetary lawsuit back in 2017. I guess there were other legal issues in 2022 that they relied on them for their services? The next one is Shana Banberger, the Executive Director of the Colorado Republican committee, the party I assume was just paying her since its filed under "Payroll."Finally there is a $129,000.00 to the Georgia Republican Party, not surprising there was a very competitive senate race there. 
+
+What can I take from this is that Dems spend their money on consulting/ payrolls and such, Republicans spend their money on legal fees, payroll, or send it out of state to more competitive races. 
+
+Democratic:
+```{r}
+dem_top_spent <-dem_spent_clean %>% 
+  group_by(recipient_name, disbursement_description, recipient_state, entity_type) %>% 
+  summarise(total = sum(disbursement_amount)) %>%
+  arrange(desc(total))
+dem_top_spent
+```
+
+Republican: 
+
+```{r}
+rep_top_spent <-rep_spent_clean %>% 
+  group_by(recipient_name, disbursement_description, recipient_state, entity_type) %>% 
+  summarise(total = sum(disbursement_amount)) %>%
+  arrange(desc(total))
+rep_top_spent
+```
+
+###Finding top disbursement decription:
+
+#Question: What does the top spending category tell us about 
+
+Answer: This doesn't tell me much aside from that Dems spent the most on Payrolls and taxes and also in races against State legislator Ron Hanks and in the 7th congressional district race where BRITTANY PETTERSEN was running. These distinctions are important and it is partly why I did not put the data through Open Refine, I can see which races the Dems put lots of money towards. 
+
+Republicans: This also doesn't tell me much aside from they paid their workers, paid taxes,and spent money on legal fees to that one law firm. I still don't know what law case that has to do with. They also transferred out 129000.00	to out of state. 
+
+
+Dem:
+
+```{r}
+dem_top_dis <-dem_spent_clean %>% 
+  group_by(disbursement_description) %>% 
+  summarise(total = sum(disbursement_amount)) %>%
+  arrange(desc(total))
+dem_top_dis
+```
+Rep:
+
+```{r}
+rep_top_dis <-rep_spent_clean %>% 
+  group_by(disbursement_description) %>% 
+  summarise(total = sum(disbursement_amount)) %>%
+  arrange(desc(total))
+rep_top_dis
+```
+
+###Top states for spending: 
+
+#What does the data from top speniding on states tell us?
+
+Answer:
+
+DEM: It doesn't show us much about individual states because corporations such as a payroll company that they used can be based anywhere, in this case the company Paychex is based in PA. The fact that a company is based in a particular states doesn't tell us anything. 
+Interestingly though, Dems spent more money, $2,772,796 on out of state expenses as compared to in-state which was $2,194,731. 
+
+REP: Republicans spent considerably less, $895,360.8	on out of state expenditures than they did in Colorado which was $2,772,796. A very large difference. Because of the small amount spent on out of state spending, its not very significant to find out what in Florida they spent (which was their top spending state). The second most spent state was Georgia and we already know a big chunk of money was sent to the competitive senate race there. 	
+
+
+```{r}
+dem_spent_states <- dem_spent_clean %>% 
+filter(recipient_state != "CO") %>%
+group_by(recipient_state) %>% 
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+dem_spent_states
+```
+States agregate: 
+```{r}
+dem_spent_states <- dem_spent_clean %>% 
+filter(recipient_state != "CO") %>%
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+dem_spent_states
+```
+
+
+Just Colorado:
+```{r}
+dem_spent_states <- dem_spent_clean %>% 
+filter(recipient_state == "CO") %>%
+group_by(recipient_state) %>% 
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+dem_spent_states
+```
+
+
+REPUBLICANS: 
+
+```{r}
+rep_spent_states <- rep_spent_clean %>% 
+filter(recipient_state != "CO") %>%
+group_by(recipient_state) %>% 
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+rep_spent_states
+```
+States agreggate:
+
+```{r}
+rep_spent_states <- rep_spent_clean %>% 
+filter(recipient_state != "CO") %>% 
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+rep_spent_states
+```
+
+
+
+Just Colorado:
+
+```{r}
+rep_spent_states <- rep_spent_clean %>% 
+filter(recipient_state == "CO") %>%
+group_by(recipient_state) %>% 
+summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+rep_spent_states
+```
+
+##Taking a look like at competitive races:
+
+In Colorado this year, only one race was truly "competitive" which was congressional district 3, held by Congresswoman Lauren Boebert. She won but by a VERY tight margin from her democratic opponent, Adam Frisch. What do the donations and expenditures of the parties tell us about this race?
+
+#Lauren Boebert:
+
+Finding donations FROM Lauren Boebert to the Colorado Republican Committee
+
+```{r}
+rep_rec_clean %>% 
+  group_by(contributor_name) %>%
+  filter(contributor_name == "LAUREN BOEBERT FOR CONGRESS") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+  
+```
+
+Answer: Congresswoman Boebert gave $3,000 to the Colorado Republican Committee.
+
+Her Employees:
+
+```{r}
+rep_rec_clean %>% 
+  group_by(contributor_name, contributor_employer) %>%
+  filter(contributor_employer == "CONGRESSWOMAN BOEBERT (US HOUSE)") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+```
+
+Answer: Naomi Dobb, her regional director gave $450. 
+
+#How much did the Colorado Republican Committee SPEND on Boebert?
+
+```{r}
+rep_spent_clean %>% 
+  group_by(recipient_name) %>% 
+  filter(recipient_name == "Lauren Boebert")
+ 
+```
+Answer: They spent NOTHING ON HER!!!!! Thats both shocking and not shocking as she has been a very problematic House Member for the Republican Party.
+
+#What about Lauren Boebert's Democratic opponent, Adam Frisch?
+
+
+How Much did Frish give to the Colorado Democratic Party:
+```{r}
+dem_rec_clean %>% 
+  group_by(candidate_name) %>%
+  filter(candidate_name == "FRISCH, ADAM") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+```
+
+Answer: He gave a total of $29,000 to the CO Democratic Party!
+
+#How Much did the Dems spend on Adam Frisch?
+
+```{r}
+dem_spent_clean %>% 
+  group_by(recipient_name) %>% 
+  filter(recipient_name == "Adam Frisch") %>% 
+  summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+```
+Answer: They Spent NOTHING on him too!
+
+
+-Therefore it looks like in the competitive House Race, both Boebert and Frisch gave to their respective parties but the parties did not spend back on them. Very interesting!
+
+##Lets take a look at the senate race which was between Democrat Michael Bennet and Republican Joe O'Dea:
+
+Bennet donations to Democratic Party of CO:
+
+```{r}
+dem_rec_clean %>% 
+  group_by(contributor_name) %>%
+  filter(contributor_name == "BENNET COLORADO VICTORY FUND") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+```
+Michael Bennet's victory fund gave a whopping $710,610.9 dollars to the State Democratic Party!
+
+#How much did the Colorado Democratic Party spend on Bennet: 
+
+```{r}
+dem_spent_clean %>% 
+  group_by(candidate_name) %>% 
+  filter(candidate_name == "BENNET, MICHAEL F.") %>% 
+  summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+```
+Answer: The State party in-return spent 31,444 on Senator Bennet!
+
+Lets see how the Republicans did:
+
+#How much did Republican candidate, Joe O'Dea donate to the Colorado Republican party:
+
+```{r}
+rep_rec_clean %>% 
+  group_by(contributor_name) %>%
+  filter(contributor_name == "DEA, JOE") %>% 
+  summarise(total = sum(contribution_receipt_amount)) %>% 
+arrange(desc(total))
+```
+
+Candidate O'Dea only donated 1,500 to the Colorado Republican Committee.
+
+#How much did the GOP spend on O'Dea?
+
+```{r}
+rep_spent_clean %>% 
+  group_by(candidate_name) %>% 
+  filter(candidate_name == "DEA, JOE") %>% 
+  summarise(total = sum(disbursement_amount)) %>% 
+arrange(desc(total))
+```
+The Colorado Republican Committee gave NONE to Joe O'Dea!
+
+The Colorado Republican Committee would rather sent money to Georgia than fund their own senatorial candiate in Colorado. 
+However, Bennet ultimately won the race by over 14 percentage points, so it wasn't a competitive race. Still interesting to look at in a year when Republicans wanted to take back the senate. 
+
+
+##Final Thouhts:
+
+Overall the two party's FEC reports are intersting with the DEMS showing a much larger "War Chest" while Republicans seemed to spend most of their money on local things or send money out of state to other races. I would probably write stories about how both parties did not spend money on their candidates in the Boeber House race, and I would also write about the GOP sending money to Goergia instead of helping their candidate. Overall very interesting data. Also, there needs to be some investigation on what the GOP is spending on legal fees with that Law firm. What court cases are they involved in?
